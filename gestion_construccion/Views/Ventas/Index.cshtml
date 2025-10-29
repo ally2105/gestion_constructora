@@ -1,0 +1,35 @@
+@model IEnumerable<gestion_construccion.Models.Venta>
+
+@{
+    ViewData["Title"] = "Ventas";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="Create">Crear Nueva Venta</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Cliente.Nombre)</th>
+            <th>@Html.DisplayNameFor(model => model.Fecha)</th>
+            <th>@Html.DisplayNameFor(model => model.Total)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Cliente.Nombre)</td>
+                <td>@Html.DisplayFor(modelItem => item.Fecha)</td>
+                <td>@Html.DisplayFor(modelItem => item.Total)</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Detalles</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
