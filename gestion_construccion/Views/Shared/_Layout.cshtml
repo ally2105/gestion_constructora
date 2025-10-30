@@ -26,6 +26,24 @@
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                     </li>
                 </ul>
+                
+                <!-- BOTÓN DE CERRAR SESIÓN AÑADIDO -->
+                <ul class="navbar-nav">
+                    @if (User.Identity != null && User.Identity.IsAuthenticated) // <-- COMPROBACIÓN AÑADIDA
+                    {
+                        <li class="nav-item">
+                            <form class="form-inline" asp-controller="Usuarios" asp-action="Logout" method="post">
+                                <button type="submit" class="nav-link btn btn-link text-dark">Cerrar Sesión</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Usuarios" asp-action="Login">Iniciar Sesión</a>
+                        </li>
+                    }
+                </ul>
             </div>
         </div>
     </nav>

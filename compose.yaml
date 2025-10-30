@@ -1,0 +1,7 @@
+﻿services:
+  gestion_construccion:
+    image: gestion_construccion
+    build:
+      context: .
+      dockerfile: gestion_construccion/Dockerfile
+

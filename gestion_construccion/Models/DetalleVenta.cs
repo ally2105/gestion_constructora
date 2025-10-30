@@ -27,5 +27,14 @@ namespace gestion_construccion.Models
         [Required]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal PrecioUnitario { get; set; }
+
+        public DetalleVenta(int ventaId, int productoId, int cantidad, decimal precio)
+        {
+            VentaId = ventaId;
+            ProductoId = productoId;
+            Cantidad = cantidad;
+            PrecioUnitario = precio;
+        }
+        public DetalleVenta() { }
     }
 }

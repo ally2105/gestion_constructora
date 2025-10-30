@@ -1,4 +1,3 @@
-
 using gestion_construccion.Datos;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -21,7 +20,7 @@ namespace gestion_construccion.Repositories
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T?> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);
         }
@@ -45,6 +44,12 @@ namespace gestion_construccion.Repositories
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.Where(predicate).ToListAsync();
+        }
+
+        // Implementación del nuevo método GetQuery
+        public IQueryable<T> GetQuery()
+        {
+            return _dbSet;
         }
     }
 }

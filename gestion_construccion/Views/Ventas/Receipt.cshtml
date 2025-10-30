@@ -11,9 +11,11 @@
     <hr />
     <dl class="row">
         <dt class="col-sm-2">Cliente</dt>
-        <dd class="col-sm-10">@Model.Cliente.Nombre</dd>
+        <dd class="col-sm-10">@Model.Cliente.Usuario.Nombre</dd>
+        
         <dt class="col-sm-2">Fecha</dt>
         <dd class="col-sm-10">@Model.Fecha</dd>
+        
         <dt class="col-sm-2">Total</dt>
         <dd class="col-sm-10">@Model.Total.ToString("C")</dd>
     </dl>
@@ -40,4 +42,7 @@
             }
         </tbody>
     </table>
+</div>
+<div>
+    <a asp-action="Index">Volver al Historial</a>
 </div>

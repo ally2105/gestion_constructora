@@ -1,9 +1,11 @@
 using gestion_construccion.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace gestion_construccion.Datos
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<Usuario, Rol, int, IdentityUserClaim<int>, IdentityUserRole<int>, IdentityUserLogin<int>, IdentityRoleClaim<int>, IdentityUserToken<int>>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -16,9 +18,17 @@ namespace gestion_construccion.Datos
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuración de la herencia TPH (Table-Per-Hierarchy)
-            modelBuilder.Entity<Persona>().ToTable("Personas");
-            modelBuilder.Entity<Cliente>().ToTable("Clientes");
+            // Renombrar las tablas de Identity para que tengan un prefijo (opcional pero recomendado)
+            modelBuilder.Entity<Usuario>().ToTable("Seguridad_Usuarios");
+            modelBuilder.Entity<Rol>().ToTable("Seguridad_Roles");
+            modelBuilder.Entity<IdentityUserRole<int>>().ToTable("Seguridad_UsuariosRoles");
+            modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("Seguridad_UsuariosClaims");
+            modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("Seguridad_UsuariosLogins");
+            modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("Seguridad_RolesClaims");
+            modelBuilder.Entity<IdentityUserToken<int>>().ToTable("Seguridad_UsuariosTokens");
+
+            // La configuración de herencia para Persona/Cliente ya no es necesaria aquí
+            // si no se usa directamente en el DbContext.
         }
     }
 }

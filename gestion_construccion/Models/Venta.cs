@@ -10,9 +10,9 @@ namespace gestion_construccion.Models
         public int Id { get; set; }
 
         [Required]
-        public int PersonaId { get; set; }
+        public int ClienteId { get; set; }
 
-        [ForeignKey("PersonaId")]
+        [ForeignKey("ClienteId")]
         public Cliente Cliente { get; set; } = default!;
 
         [Required]
@@ -23,7 +23,17 @@ namespace gestion_construccion.Models
         public decimal Total { get; set; }
 
         public ICollection<DetalleVenta> Detalles { get; set; }
+        // Constructor para crear una nueva Venta. 
+        // Se asigna el cliente, la fecha actual y se inicializa el total y los detalles.
+        public Venta(int clienteId)
+        {
+            ClienteId = clienteId;
+            Fecha = DateTime.UtcNow;
+            Total = 0; 
+            Detalles = new HashSet<DetalleVenta>();
+        }
 
+        // Constructor vacío requerido por Entity Framework.
         public Venta()
         {
             Detalles = new HashSet<DetalleVenta>();

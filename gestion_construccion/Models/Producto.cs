@@ -25,5 +25,14 @@ namespace gestion_construccion.Models
         [Required(ErrorMessage = "El stock es obligatorio")]
         [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser negativo")]
         public int Stock { get; set; }
+
+        public Producto(string nombre, string? descripcion, decimal precio, int stock)
+        {
+            Nombre = nombre;
+            Descripcion = descripcion;
+            Precio = precio;
+            Stock = stock;
+        }
+        public Producto() { }
     }
 }
