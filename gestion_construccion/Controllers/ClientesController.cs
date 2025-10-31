@@ -1,10 +1,10 @@
-using gestion_construccion.Models;
 using gestion_construccion.Models.ViewModels;
 using gestion_construccion.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore; // <-- AÑADIDO
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics; // <-- AÑADIDO
 
 namespace gestion_construccion.Controllers
 {
@@ -40,44 +40,32 @@ namespace gestion_construccion.Controllers
             {
                 try
                 {
-                    // Crear el objeto Cliente a partir del ViewModel
-                    var cliente = new Cliente(0, model.Direccion) // El UsuarioId se asignará en el servicio
-                    {
-                        FechaRegistro = DateTime.UtcNow // Se puede inicializar aquí o en el servicio
-                    };
-                    // Crear un objeto Usuario temporal para pasar los datos al servicio
-                    cliente.Usuario = new Usuario // Inicializar Usuario aquí
-                    {
-                        Email = model.Email,
-                        UserName = model.Email,
-                        Nombre = model.Nombre,
-                        Identificacion = model.Identificacion,
-                        FechaNacimiento = model.FechaNacimiento
-                    };
-
-                    await _clienteService.AddClienteAsync(cliente, model.Password);
+                    await _clienteService.AddClienteAsync(model);
                     return RedirectToAction(nameof(Index));
                 }
                 catch (ApplicationException ex)
                 {
                     ModelState.AddModelError(string.Empty, ex.Message);
                 }
-                catch (Exception)
+                catch (Exception ex) 
                 {
-                    ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado al crear el cliente.");
+                    // Imprimir la excepción completa en la consola para depuración
+                    Debug.WriteLine(ex.ToString());
+                    ModelState.AddModelError(string.Empty, $"Error inesperado: {ex.Message}. Revise la consola del servidor para más detalles.");
                 }
             }
             return View(model);
         }
+
+        // ... (el resto del código permanece igual)
 
         // GET: Clientes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
             var cliente = await _clienteService.GetClienteByIdAsync(id.Value);
-            if (cliente == null) return NotFound();
+            if (cliente == null || cliente.Usuario == null) return NotFound();
 
-            // Mapear Cliente a ClienteViewModel para la edición
             var viewModel = new ClienteViewModel
             {
                 Email = cliente.Usuario.Email,
@@ -85,9 +73,8 @@ namespace gestion_construccion.Controllers
                 Identificacion = cliente.Usuario.Identificacion,
                 FechaNacimiento = cliente.Usuario.FechaNacimiento,
                 Direccion = cliente.Direccion
-                // La contraseña no se carga para edición por seguridad
             };
-            ViewData["ClienteId"] = cliente.Id; // Pasar el ID del cliente para el POST
+            
             return View(viewModel);
         }
 
@@ -96,47 +83,25 @@ namespace gestion_construccion.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ClienteViewModel model)
         {
-            // Recuperar el cliente original para obtener el UsuarioId
-            var existingCliente = await _clienteService.GetClienteByIdAsync(id);
-            if (existingCliente == null) return NotFound();
-
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Actualizar el objeto Cliente a partir del ViewModel
-                    existingCliente.Direccion = model.Direccion;
-                    // Actualizar el objeto Usuario asociado
-                    existingCliente.Usuario.Email = model.Email;
-                    existingCliente.Usuario.UserName = model.Email;
-                    existingCliente.Usuario.Nombre = model.Nombre;
-                    existingCliente.Usuario.Identificacion = model.Identificacion;
-                    existingCliente.Usuario.FechaNacimiento = model.FechaNacimiento;
-
-                    await _clienteService.UpdateClienteAsync(existingCliente);
+                    var result = await _clienteService.UpdateClienteAsync(id, model);
+                    if (result == null) return NotFound();
+                    
                     return RedirectToAction(nameof(Index));
                 }
                 catch (ApplicationException ex)
                 {
                     ModelState.AddModelError(string.Empty, ex.Message);
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (await _clienteService.GetClienteByIdAsync(id) == null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                catch (Exception)
-                {
-                    ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado al actualizar el cliente.");
+                    Debug.WriteLine(ex.ToString());
+                    ModelState.AddModelError(string.Empty, $"Error inesperado: {ex.Message}. Revise la consola del servidor para más detalles.");
                 }
             }
-            ViewData["ClienteId"] = id; // Mantener el ID en caso de error de validación
             return View(model);
         }
 
@@ -164,13 +129,14 @@ namespace gestion_construccion.Controllers
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
                 var cliente = await _clienteService.GetClienteByIdAsync(id);
-                return View(cliente); // Volver a la vista de eliminación con el error
+                return View(cliente);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado al eliminar el cliente.");
+                Debug.WriteLine(ex.ToString());
+                ModelState.AddModelError(string.Empty, $"Error inesperado: {ex.Message}. Revise la consola del servidor para más detalles.");
                 var cliente = await _clienteService.GetClienteByIdAsync(id);
-                return View(cliente); // Volver a la vista de eliminación con el error
+                return View(cliente);
             }
         }
 

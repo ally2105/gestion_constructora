@@ -12,7 +12,7 @@ using gestion_construccion.Datos;
 namespace gestion_construccion.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251029230521_creacion tablas")]
+    [Migration("20251030234711_creacion tablas")]
     partial class creaciontablas
     {
         /// <inheritdoc />
