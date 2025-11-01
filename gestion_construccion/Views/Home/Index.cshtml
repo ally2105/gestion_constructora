@@ -2,7 +2,20 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- BOTÓN DE CERRAR SESIÓN AÑADIDO -->
+<ul class="navbar-nav">
+    @if (User.Identity != null && User.Identity.IsAuthenticated) // <-- COMPROBACIÓN AÑADIDA
+    {
+        <li class="nav-item">
+            <form class="form-inline" asp-controller="Usuarios" asp-action="Logout" method="post">
+                <button type="submit" class="nav-link btn btn-link text-dark">Cerrar Sesión</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Usuarios" asp-action="Login">Iniciar Sesión</a>
+        </li>
+    }
+</ul>
