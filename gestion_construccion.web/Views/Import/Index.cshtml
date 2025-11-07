@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "Importar Datos desde Excel";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>Seleccione un archivo Excel (.xlsx) con los datos de ventas para importar.</p>
+<p>El archivo debe tener las siguientes columnas: <strong>ClienteEmail, ClienteNombre, ProductoNombre, Cantidad, PrecioUnitario, FechaVenta</strong></p>
+
+<hr />
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Upload" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Archivo Excel</label>
+                <input type="file" name="file" class="form-control" accept=".xlsx" />
+            </div>
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Subir e Importar</button>
+            </div>
+        </form>
+    </div>
+</div>

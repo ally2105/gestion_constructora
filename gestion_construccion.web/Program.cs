@@ -1,7 +1,7 @@
-using gestion_construccion.Datos;
-using gestion_construccion.Models;
-using gestion_construccion.Repositories;
-using gestion_construccion.Services;
+using gestion_construccion.web.Datos;
+using gestion_construccion.web.Models;
+using gestion_construccion.web.Repositories;
+using gestion_construccion.web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
@@ -11,11 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Se registra la FÁBRICA de DbContext. Esto es ideal para servicios de larga duración.
-builder.Services.AddDbContextFactory<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Se registra el DbContext como Scoped para el resto de la aplicación (controladores, etc.).
+// Add DbContext y configurarlo para PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -46,7 +42,7 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 // --- Registro de Servicios Personalizados ---
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IClienteService, ClienteService>();
-builder.Services.AddScoped<IImportService, ImportService>();
+builder.Services.AddScoped<IImportService, ImportService>(); // <-- AÑADIDO
 
 var app = builder.Build();
 

@@ -1,0 +1,46 @@
+@model gestion_construccion.web.Models.Cliente
+
+@{
+    ViewData["Title"] = "Detalles del Cliente";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div>
+    <h4>Cliente</h4>
+    <hr />
+    @if (Model != null && Model.Usuario != null)
+    {
+        <dl class="row">
+            <dt class="col-sm-3">Nombre</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Usuario.Nombre)</dd>
+
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Usuario.Email)</dd>
+
+            <dt class="col-sm-3">Teléfono</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Usuario.PhoneNumber)</dd>
+
+            <dt class="col-sm-3">Identificación</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Usuario.Identificacion)</dd>
+
+            <dt class="col-sm-3">Fecha de Nacimiento</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Usuario.FechaNacimiento)</dd>
+
+            <dt class="col-sm-3">Dirección</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Direccion)</dd>
+
+            <dt class="col-sm-3">Fecha de Registro</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.FechaRegistro)</dd>
+        </dl>
+    }
+    else
+    {
+        <p>No se encontraron los detalles del cliente.</p>
+    }
+</div>
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Editar</a> 
+    <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+</div>

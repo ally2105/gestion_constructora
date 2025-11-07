@@ -5,3 +5,9 @@
       context: .
       dockerfile: gestion_construccion/Dockerfile
 
+  gestion_construcion.api:
+    image: gestion_construcion.api
+    build:
+      context: .
+      dockerfile: gestion_construcion.api/Dockerfile
+
