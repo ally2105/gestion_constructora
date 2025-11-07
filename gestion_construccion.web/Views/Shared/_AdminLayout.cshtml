@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-f" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Panel de Administración</title>
+    
+    <!-- CSS de Bootstrap 5 desde CDN para un diseño moderno y responsivo -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Iconos de Bootstrap desde CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Estilos personalizados para la estructura del panel -->
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --sidebar-bg-color: #212529; /* Un negro ligeramente más suave */
+            --sidebar-link-color: #adb5bd;
+            --sidebar-link-hover-color: #ffffff;
+            --sidebar-link-active-bg: #495057;
+            --content-bg-color: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--content-bg-color);
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            background-color: var(--sidebar-bg-color);
+            padding-top: 56px; /* Altura del header */
+        }
+
+        .sidebar .nav-link {
+            color: var(--sidebar-link-color);
+            font-size: 1.05rem; /* Tamaño de fuente legible */
+            padding: 0.75rem 1.5rem; /* Espaciado interno coherente */
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar .nav-link .bi {
+            margin-right: 0.8rem; /* Espacio entre el icono y el texto */
+            font-size: 1.2rem;
+        }
+
+        .sidebar .nav-link:hover {
+            color: var(--sidebar-link-hover-color);
+        }
+        
+        /* Estilo para el enlace activo (requiere un poco de JS o un Tag Helper para funcionar dinámicamente) */
+        .sidebar .nav-link.active {
+            color: var(--sidebar-link-hover-color);
+            background-color: var(--sidebar-link-active-bg);
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 1.5rem;
+        }
+
+        .top-header {
+            height: 56px;
+            width: calc(100% - var(--sidebar-width));
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            background-color: #ffffff;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            z-index: 1020;
+        }
+        
+        .content-wrapper {
+            margin-top: 56px; /* Empujar el contenido debajo del header superior */
+        }
+
+        .page-footer {
+            text-align: center;
+            padding: 1rem 0;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVEGACIÓN LATERAL (SIDEBAR) -->
+    <nav class="sidebar">
+        <div class="d-flex flex-column p-3">
+            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                <i class="bi bi-building-gear me-2" style="font-size: 1.5rem;"></i>
+                <span class="fs-4">Firmeza Admin</span>
+            </a>
+            <hr class="text-white">
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Admin" asp-action="Dashboard">
+                        <i class="bi bi-house-door"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" asp-controller="Productos" asp-action="Index">
+                        <i class="bi bi-box-seam"></i> Productos
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" asp-controller="Clientes" asp-action="Index">
+                        <i class="bi bi-people"></i> Clientes
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" asp-controller="Ventas" asp-action="Index">
+                        <i class="bi bi-receipt"></i> Ventas
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" asp-controller="Import" asp-action="Index">
+                        <i class="bi bi-upload"></i> Importar Datos
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content">
+        <!-- ENCABEZADO SUPERIOR (TOP HEADER) -->
+        <header class="top-header">
+            <div class="navbar-nav">
+                <div class="nav-item text-nowrap">
+                    <form asp-controller="Usuarios" asp-action="Logout" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-link text-decoration-none text-secondary">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
+
+        <!-- ENVOLTORIO DEL CONTENIDO DE LA PÁGINA -->
+        <main class="content-wrapper" role="main">
+            @RenderBody()
+        </main>
+
+        <!-- PIE DE PÁGINA (FOOTER) -->
+        <footer class="page-footer mt-auto">
+            &copy; @DateTime.Now.Year - Firmeza - Sistema de Gestión de Construcción
+        </footer>
+    </div>
+
+    <!-- Scripts de Bootstrap 5 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Sección para scripts específicos de cada página (importante para las validaciones) -->
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

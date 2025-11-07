@@ -1,13 +1,13 @@
-using gestion_construccion.Models.ViewModels;
-using gestion_construccion.Repositories;
-using gestion_construccion.Services;
+using gestion_construccion.web.Models.ViewModels;
+using gestion_construccion.web.Repositories;
+using gestion_construccion.web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
-namespace gestion_construccion.Controllers
+namespace gestion_construccion.web.Controllers
 {
     [Authorize(Roles = "Administrador")]
     public class VentasController : Controller
