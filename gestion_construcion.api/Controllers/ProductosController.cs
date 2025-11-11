@@ -1,63 +1,100 @@
+using AutoMapper;
+using Firmeza.Api.DTOs;
 using gestion_construccion.web.Models;
 using gestion_construccion.web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Firmeza.Api.Controllers
 {
-    // Atributo que indica que esta clase es un controlador de API.
     [ApiController]
-    // Define la ruta base para este controlador. En este caso, será "/api/Productos".
     [Route("api/[controller]")]
+    [Authorize]
     public class ProductosController : ControllerBase
     {
-        // Dependencia del servicio de productos.
         private readonly IProductoService _productoService;
+        private readonly IMapper _mapper;
 
-        // El constructor recibe el servicio a través de inyección de dependencias.
-        public ProductosController(IProductoService productoService)
+        public ProductosController(IProductoService productoService, IMapper mapper)
         {
             _productoService = productoService;
+            _mapper = mapper;
         }
 
-        // Acción para obtener todos los productos.
         // GET: /api/Productos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Producto>>> GetAllProductos()
+        public async Task<ActionResult<IEnumerable<ProductoDto>>> GetAllProductos()
         {
-            try
-            {
-                // Llama al servicio para obtener los productos.
-                var productos = await _productoService.GetAllProductosAsync();
-                // Devuelve una respuesta HTTP 200 OK con la lista de productos en formato JSON.
-                return Ok(productos);
-            }
-            catch (Exception ex)
-            {
-                // Si ocurre un error, devuelve una respuesta HTTP 500 Internal Server Error con el mensaje.
-                return StatusCode(500, $"Ocurrió un error interno: {ex.Message}");
-            }
+            var productos = await _productoService.GetAllProductosAsync();
+            // Mapea la lista de entidades Producto a una lista de ProductoDto.
+            var productosDto = _mapper.Map<IEnumerable<ProductoDto>>(productos);
+            return Ok(productosDto);
         }
 
-        // Acción para obtener un producto por su ID.
         // GET: /api/Productos/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Producto>> GetProductoById(int id)
+        public async Task<ActionResult<ProductoDto>> GetProductoById(int id)
         {
-            try
+            var producto = await _productoService.GetProductoByIdAsync(id);
+            if (producto == null)
             {
-                var producto = await _productoService.GetProductoByIdAsync(id);
-                if (producto == null)
-                {
-                    // Si no se encuentra el producto, devuelve un error 404 Not Found.
-                    return NotFound();
-                }
-                // Devuelve una respuesta HTTP 200 OK con el producto encontrado.
-                return Ok(producto);
+                return NotFound();
             }
-            catch (Exception ex)
+            // Mapea la entidad Producto a un ProductoDto.
+            var productoDto = _mapper.Map<ProductoDto>(producto);
+            return Ok(productoDto);
+        }
+
+        // POST: /api/Productos
+        [HttpPost]
+        [Authorize(Roles = "Administrador")] // Solo los administradores pueden crear productos.
+        public async Task<ActionResult<ProductoDto>> CreateProducto([FromBody] ProductoCreateDto productoCreateDto)
+        {
+            // Mapea el DTO de creación a la entidad Producto.
+            var producto = _mapper.Map<Producto>(productoCreateDto);
+            
+            var nuevoProducto = await _productoService.AddProductoAsync(producto);
+
+            // Mapea el producto recién creado a un DTO para devolverlo en la respuesta.
+            var productoDto = _mapper.Map<ProductoDto>(nuevoProducto);
+
+            // Devuelve una respuesta 201 Created con la ubicación del nuevo recurso y el recurso mismo.
+            return CreatedAtAction(nameof(GetProductoById), new { id = productoDto.Id }, productoDto);
+        }
+
+        // PUT: /api/Productos/5
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> UpdateProducto(int id, [FromBody] ProductoCreateDto productoUpdateDto)
+        {
+            var productoExistente = await _productoService.GetProductoByIdAsync(id);
+            if (productoExistente == null)
             {
-                return StatusCode(500, $"Ocurrió un error interno: {ex.Message}");
+                return NotFound();
             }
+
+            // Mapea los datos del DTO sobre la entidad existente.
+            _mapper.Map(productoUpdateDto, productoExistente);
+
+            await _productoService.UpdateProductoAsync(productoExistente);
+
+            // Devuelve una respuesta 204 No Content, que es el estándar para una actualización exitosa.
+            return NoContent();
+        }
+
+        // DELETE: /api/Productos/5
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> DeleteProducto(int id)
+        {
+            var result = await _productoService.DeleteProductoAsync(id);
+            if (!result)
+            {
+                return NotFound();
+            }
+            return NoContent();
         }
     }
 }

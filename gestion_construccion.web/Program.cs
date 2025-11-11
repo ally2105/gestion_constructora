@@ -1,5 +1,3 @@
-// ESTE ES OTRO COMENTARIO DE PRUEBA.
-
 // Se importan los namespaces necesarios para el funcionamiento de la aplicación.
 using gestion_construccion.web.Datos;
 using gestion_construccion.web.Models;
@@ -9,7 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 
-// Se crea el constructor de la aplicación web.
 var builder = WebApplication.CreateBuilder(args);
 
 // --- Registro de Servicios en el Contenedor de Inyección de Dependencias ---
@@ -64,6 +61,7 @@ builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IImportService, ImportService>();
 builder.Services.AddScoped<IVentaService, VentaService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddTransient<IEmailService, SmtpEmailService>(); // <-- LÍNEA AÑADIDA
 
 // Se añade el servicio de Logging para poder inyectar ILogger en los servicios.
 builder.Services.AddLogging();

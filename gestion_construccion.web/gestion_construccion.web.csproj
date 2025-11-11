@@ -14,11 +14,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <!-- Paquete para leer y escribir archivos Excel -->
-      <PackageReference Include="Bogus" Version="10.0.1" />
       <PackageReference Include="EPPlus" Version="7.0.0" />
-
       <PackageReference Include="iTextSharp" Version="5.5.13.4" />
+      <PackageReference Include="MailKit" Version="4.3.0" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
