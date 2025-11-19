@@ -1,5 +1,5 @@
-using gestion_construccion.web.Models;
-using gestion_construccion.web.Models.ViewModels;
+using Firmeza.Core.Models;
+using Firmeza.Api.DTOs; // Usar el nuevo LoginDto
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -26,7 +26,7 @@ namespace Firmeza.Api.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] LoginDto model) // Cambiado a LoginDto
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)

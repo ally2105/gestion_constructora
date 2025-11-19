@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using gestion_construccion.web.Validation; // <-- AÑADIDO
+using Firmeza.Core.Validation; // Actualizado
 
 namespace gestion_construccion.web.Models.ViewModels
 {

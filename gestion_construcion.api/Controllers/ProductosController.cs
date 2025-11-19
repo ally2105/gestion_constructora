@@ -1,7 +1,7 @@
 using AutoMapper;
 using Firmeza.Api.DTOs;
-using gestion_construccion.web.Models;
-using gestion_construccion.web.Services;
+using Firmeza.Core.Models; // Actualizado
+using Firmeza.Core.Interfaces; // Actualizado
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -27,6 +27,11 @@ namespace Firmeza.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductoDto>>> GetAllProductos()
         {
+            // Añadir cabeceras para deshabilitar la caché del navegador
+            Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
+            Response.Headers.Add("Pragma", "no-cache");
+            Response.Headers.Add("Expires", "0");
+
             var productos = await _productoService.GetAllProductosAsync();
             // Mapea la lista de entidades Producto a una lista de ProductoDto.
             var productosDto = _mapper.Map<IEnumerable<ProductoDto>>(productos);

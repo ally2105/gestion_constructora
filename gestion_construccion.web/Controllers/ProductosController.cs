@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using gestion_construccion.web.Models;
-using gestion_construccion.web.Services;
+using Firmeza.Core.Models; // Actualizado
+using Firmeza.Core.Interfaces; // Actualizado
 using Microsoft.EntityFrameworkCore; // <-- AÑADIDO
 
 namespace gestion_construccion.web.Controllers

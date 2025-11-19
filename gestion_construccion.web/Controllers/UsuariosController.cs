@@ -1,4 +1,4 @@
-using gestion_construccion.web.Models;
+using Firmeza.Core.Models; // Actualizado
 using gestion_construccion.web.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

@@ -1,4 +1,5 @@
-using gestion_construccion.web.Models;
+using Firmeza.Core.Models;
+using Firmeza.Core.Interfaces;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.AspNetCore.Hosting;
@@ -18,7 +19,6 @@ namespace gestion_construccion.web.Services
 
         public async Task<string> GenerarReciboVentaAsync(Venta venta)
         {
-            // 1. Definir la ruta y el nombre del archivo.
             var uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "recibos");
             if (!Directory.Exists(uploadsDir))
             {
@@ -27,29 +27,24 @@ namespace gestion_construccion.web.Services
             var fileName = $"Recibo-Venta-{venta.Id}-{DateTime.Now:yyyyMMddHHmmss}.pdf";
             var filePath = Path.Combine(uploadsDir, fileName);
 
-            // 2. Crear el documento PDF.
             await using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
                 var document = new Document(PageSize.A4, 25, 25, 30, 30);
                 PdfWriter.GetInstance(document, fileStream);
                 document.Open();
 
-                // --- Contenido del PDF ---
                 var fontTitle = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 18);
                 var fontBold = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12);
                 var fontNormal = FontFactory.GetFont(FontFactory.HELVETICA, 12);
 
-                // Título
                 document.Add(new Paragraph("Recibo de Venta", fontTitle) { Alignment = Element.ALIGN_CENTER, SpacingAfter = 20 });
 
-                // Datos del Cliente y Venta
                 document.Add(new Paragraph($"Fecha: {venta.Fecha:dd/MM/yyyy}", fontNormal));
                 document.Add(new Paragraph($"Número de Venta: {venta.Id}", fontNormal));
                 document.Add(new Paragraph($"Cliente: {venta.Cliente?.Usuario?.Nombre}", fontNormal));
                 document.Add(new Paragraph($"Documento: {venta.Cliente?.Usuario?.Identificacion}", fontNormal));
-                document.Add(new Paragraph(" ", fontNormal)); // Espacio
+                document.Add(new Paragraph(" ", fontNormal));
 
-                // Tabla con detalles de productos
                 var table = new PdfPTable(4) { WidthPercentage = 100, SpacingBefore = 10, SpacingAfter = 10 };
                 table.AddCell(new PdfPCell(new Phrase("Producto", fontBold)));
                 table.AddCell(new PdfPCell(new Phrase("Cantidad", fontBold)));
@@ -65,8 +60,7 @@ namespace gestion_construccion.web.Services
                 }
                 document.Add(table);
 
-                // Totales
-                var iva = venta.Total * 0.19m; // Asumiendo un IVA del 19%
+                var iva = venta.Total * 0.19m;
                 var subtotal = venta.Total - iva;
 
                 document.Add(new Paragraph($"Subtotal: {subtotal:C}", fontNormal) { Alignment = Element.ALIGN_RIGHT });
@@ -76,7 +70,6 @@ namespace gestion_construccion.web.Services
                 document.Close();
             }
 
-            // 3. Devolver la ruta relativa del archivo para guardarla en la BD.
             return $"/recibos/{fileName}";
         }
     }

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using gestion_construccion.web.Repositories;
+using Firmeza.Core.Interfaces; // Updated using
 
 namespace gestion_construccion.web.Controllers
 {

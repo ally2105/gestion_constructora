@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using gestion_construccion.web.Services;
+using Firmeza.Core.Interfaces; // Nuevo using para IImportService
+using Firmeza.Core.Models.ViewModels; // Nuevo using para ImportResultViewModel
 
 namespace gestion_construccion.web.Controllers
 {

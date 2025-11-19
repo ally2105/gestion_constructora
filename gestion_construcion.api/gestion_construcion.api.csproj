@@ -20,9 +20,9 @@
       </Content>
     </ItemGroup>
 
-    <!-- Referencia al proyecto principal -->
     <ItemGroup>
-        <ProjectReference Include="..\gestion_construccion.web\gestion_construccion.web.csproj" />
+        <ProjectReference Include="..\Firmeza.Core\Firmeza.Core.csproj" />
+        <ProjectReference Include="..\Firmeza.Infrastructure\Firmeza.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

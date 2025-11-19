@@ -1,6 +1,7 @@
 using gestion_construccion.web.Models.ViewModels;
-using gestion_construccion.web.Repositories;
-using gestion_construccion.web.Services;
+using Firmeza.Core.Interfaces; // Actualizado
+using Firmeza.Core.Models; // Añadido para Cliente y Producto
+using Firmeza.Core.DTOs; // Nuevo using para VentaCreateDto
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -48,7 +49,14 @@ namespace gestion_construccion.web.Controllers
             {
                 try
                 {
-                    await _ventaService.CrearVentaAsync(model);
+                    var ventaCreateDto = new VentaCreateDto
+                    {
+                        ClienteId = model.ClienteId,
+                        FechaVenta = model.FechaVenta,
+                        ProductoId = model.ProductoId,
+                        Cantidad = model.Cantidad
+                    };
+                    await _ventaService.CrearVentaAsync(ventaCreateDto); // Usar el nuevo DTO
                     return RedirectToAction(nameof(Index));
                 }
                 catch (ApplicationException ex)
