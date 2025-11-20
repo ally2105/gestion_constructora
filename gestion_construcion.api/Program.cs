@@ -2,7 +2,7 @@ using Firmeza.Core.Data;
 using Firmeza.Core.Interfaces;
 using Firmeza.Core.Models;
 using Firmeza.Infrastructure.Repositories;
-using Firmeza.Infrastructure.Services; // Añadido para SmtpEmailService
+using Firmeza.Infrastructure.Services; // Ahora PdfService está aquí
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +12,17 @@ using Npgsql.EntityFrameworkCore.PostgreSQL;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -84,7 +95,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IClienteService, ClienteService>();
-builder.Services.AddTransient<IEmailService, SmtpEmailService>(); // ¡Añadido!
+builder.Services.AddScoped<IVentaService, VentaService>();
+builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddTransient<IEmailService, SmtpEmailService>();
 
 var app = builder.Build();
 
@@ -95,6 +108,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowReactApp");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

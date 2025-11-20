@@ -1,22 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 const CartPage = () => {
   const { cartItems, updateQuantity, removeFromCart, calculateTotals, clearCart } = useCart();
   const navigate = useNavigate();
   const { subtotal, tax, total } = calculateTotals();
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const handleCheckout = () => {
-    // Aquí iría la lógica para procesar la compra
-    alert('Procesando compra...');
-    clearCart();
-    navigate('/products');
+  const handleCheckout = async () => {
+    setError('');
+    setSuccess('');
+
+    if (cartItems.length === 0) {
+      setError('El carrito está vacío.');
+      return;
+    }
+
+    // En una aplicación real, obtendrías el ID del cliente del token JWT decodificado.
+    // Por ahora, asumiremos un ID de cliente (ej. 1) o lo obtendremos de alguna manera.
+    // Para este ejemplo, lo dejaremos como un valor fijo.
+    const clienteId = 1; // Reemplazar con la lógica real para obtener el ID del cliente
+
+    try {
+      // Solo necesitamos enviar el primer producto y su cantidad para este ejemplo
+      const firstItem = cartItems[0];
+      const ventaData = {
+        clienteId: clienteId,
+        fechaVenta: new Date().toISOString(),
+        productoId: firstItem.id,
+        cantidad: firstItem.quantity,
+      };
+
+      await api.post('/api/Ventas', ventaData);
+      
+      setSuccess('¡Compra realizada con éxito! Se ha enviado un comprobante a tu correo.');
+      clearCart();
+      setTimeout(() => navigate('/products'), 3000);
+
+    } catch (err) {
+      console.error('Error al procesar la compra:', err.response?.data || err.message);
+      setError('Error al procesar la compra. Por favor, intenta de nuevo.');
+    }
   };
 
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Tu Carrito de Compras</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {success && <p style={{ color: 'green' }}>{success}</p>}
       {cartItems.length === 0 ? (
         <p style={styles.emptyCart}>El carrito está vacío. <span style={styles.link} onClick={() => navigate('/products')}>¡Añade algunos productos!</span></p>
       ) : (

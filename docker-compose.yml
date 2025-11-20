@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Servicio para la base de datos PostgreSQL
   postgres_db:
     image: postgres:15
     container_name: firmeza_postgres
@@ -14,20 +13,44 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # Servicio para la aplicación web ASP.NET Core
+  mailhog:
+    image: mailhog/mailhog
+    container_name: firmeza_mailhog
+    ports:
+      - "1025:1025" # Puerto SMTP
+      - "8025:8025" # Interfaz web de MailHog
+
   firmeza_web:
     container_name: firmeza_webapp
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: gestion_construccion.web/Dockerfile # Asumiendo que el Dockerfile está en la carpeta del proyecto
     ports:
       - "8080:8080"
     environment:
-      # La aplicación dentro del contenedor se conectará a la base de datos usando el nombre del servicio 'postgres_db'.
       - ConnectionStrings__DefaultConnection=Host=postgres_db;Database=gestion_construccion;Username=postgres;Password=Qwe.123*
+      - SmtpSettings__Server=mailhog
+      - SmtpSettings__Port=1025
       - ASPNETCORE_URLS=http://+:8080
     depends_on:
-      - postgres_db # Le dice a Docker que inicie el contenedor de la base de datos antes que el de la aplicación.
+      - postgres_db
+      - mailhog
+
+  firmeza_api:
+    container_name: firmeza_api
+    build:
+      context: .
+      dockerfile: gestion_construcion.api/Dockerfile # Asumiendo que el Dockerfile está en la carpeta del proyecto
+    ports:
+      - "8081:8081"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres_db;Database=gestion_construccion;Username=postgres;Password=Qwe.123*
+      - SmtpSettings__Server=mailhog
+      - SmtpSettings__Port=1025
+      - ASPNETCORE_URLS=http://+:8081
+    depends_on:
+      - postgres_db
+      - mailhog
 
 volumes:
   postgres_data:

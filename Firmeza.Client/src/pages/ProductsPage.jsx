@@ -15,7 +15,7 @@ const ProductsPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await api.get('api/Productos');
+        const response = await api.get('/api/Productos'); // Cambiado
         setProducts(response.data);
       } catch (err) {
         console.error('Error al obtener productos:', err.response?.data || err.message);

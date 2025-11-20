@@ -1,8 +1,11 @@
 using Firmeza.Core.Models;
-using Firmeza.Api.DTOs; // Usar el nuevo LoginDto
+using Firmeza.Api.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging; // Añadido
 using Microsoft.IdentityModel.Tokens;
+using System; // Añadido
+using System.Collections.Generic; // Añadido
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -17,31 +20,45 @@ namespace Firmeza.Api.Controllers
         private readonly UserManager<Usuario> _userManager;
         private readonly SignInManager<Usuario> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<AuthController> _logger; // Añadido
 
-        public AuthController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager, IConfiguration configuration)
+        public AuthController(
+            UserManager<Usuario> userManager,
+            SignInManager<Usuario> signInManager,
+            IConfiguration configuration,
+            ILogger<AuthController> logger) // Añadido logger
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _logger = logger; // Asignado
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto model) // Cambiado a LoginDto
+        public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
+            _logger.LogInformation("Intento de inicio de sesión para el email: {Email}", model.Email);
+
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
+                _logger.LogWarning("Usuario no encontrado para el email: {Email}", model.Email);
                 return Unauthorized(new { message = "Credenciales inválidas." });
             }
+            _logger.LogInformation("Usuario encontrado: {UserName}", user.UserName);
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, lockoutOnFailure: false);
+            _logger.LogInformation("Resultado de CheckPasswordSignInAsync: Succeeded={Succeeded}, IsLockedOut={IsLockedOut}, IsNotAllowed={IsNotAllowed}", result.Succeeded, result.IsLockedOut, result.IsNotAllowed);
 
             if (result.Succeeded)
             {
+                _logger.LogInformation("La contraseña es correcta. Generando token JWT...");
                 var token = await GenerateJwtToken(user);
+                _logger.LogInformation("Token generado con éxito.");
                 return Ok(new { token });
             }
 
+            _logger.LogWarning("La contraseña es incorrecta para el usuario: {UserName}", user.UserName);
             return Unauthorized(new { message = "Credenciales inválidas." });
         }
 

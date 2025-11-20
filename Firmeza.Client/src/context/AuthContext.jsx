@@ -9,15 +9,20 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
+      console.log("AuthContext: Token encontrado en localStorage. Configurando cabecera de axios.");
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser({ isAuthenticated: true }); 
+    } else {
+      console.log("AuthContext: No se encontró token en localStorage.");
     }
   }, [token]);
 
   const login = async (email, password) => {
     try {
-      const response = await api.post('auth/login', { email, password }); // Cambiado
+      console.log("AuthContext: Intentando iniciar sesión...");
+      const response = await api.post('/api/auth/login', { email, password });
       const { token } = response.data;
+      console.log("AuthContext: Token recibido de la API:", token);
       localStorage.setItem('token', token);
       setToken(token);
       setUser({ isAuthenticated: true });
@@ -30,6 +35,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    console.log("AuthContext: Cerrando sesión y limpiando token.");
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);

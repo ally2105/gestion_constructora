@@ -11,13 +11,11 @@ namespace Firmeza.Infrastructure.Services
     public class VentaService : IVentaService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IPdfService _pdfService;
         private readonly ILogger<VentaService> _logger;
 
-        public VentaService(IUnitOfWork unitOfWork, IPdfService pdfService, ILogger<VentaService> logger)
+        public VentaService(IUnitOfWork unitOfWork, ILogger<VentaService> logger)
         {
             _unitOfWork = unitOfWork;
-            _pdfService = pdfService;
             _logger = logger;
         }
 
@@ -56,23 +54,16 @@ namespace Firmeza.Infrastructure.Services
 
             await _unitOfWork.CompleteAsync();
 
-            try
+            // Cargar las propiedades de navegación necesarias para el controlador
+            // Asegurarse de que cliente.Usuario no sea null antes de intentar cargarlo
+            if (cliente.UsuarioId != 0) // Asumiendo que 0 es un ID no válido
             {
-                venta.Cliente = cliente;
-                cliente.Usuario = await _unitOfWork.Usuarios.GetQuery().FirstAsync(u => u.Id == cliente.UsuarioId);
-                venta.Detalles.Add(detalleVenta);
-                detalleVenta.Producto = producto;
-
-                var pdfPath = await _pdfService.GenerarReciboVentaAsync(venta);
-                venta.ReciboPdfPath = pdfPath;
-
-                _unitOfWork.Ventas.Update(venta);
-                await _unitOfWork.CompleteAsync();
+                cliente.Usuario = await _unitOfWork.Usuarios.GetQuery().FirstOrDefaultAsync(u => u.Id == cliente.UsuarioId);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ocurrió un error al generar o guardar el PDF para la venta ID {VentaId}.", venta.Id);
-            }
+            
+            venta.Cliente = cliente;
+            venta.Detalles.Add(detalleVenta);
+            detalleVenta.Producto = producto;
 
             return venta;
         }

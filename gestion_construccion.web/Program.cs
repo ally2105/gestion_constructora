@@ -2,8 +2,7 @@ using Firmeza.Core.Data;
 using Firmeza.Core.Models;
 using Firmeza.Core.Interfaces;
 using Firmeza.Infrastructure.Repositories;
-using Firmeza.Infrastructure.Services;
-using gestion_construccion.web.Services; // Añadido para PdfService
+using Firmeza.Infrastructure.Services; // Ahora PdfService está aquí
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;

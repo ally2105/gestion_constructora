@@ -2,10 +2,11 @@ using Firmeza.Core.Models;
 using Firmeza.Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System; // Necesario para DateTime
+using System;
 
 namespace Firmeza.Infrastructure.Services
 {
@@ -13,13 +14,15 @@ namespace Firmeza.Infrastructure.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<Usuario> _userManager;
-        private readonly IEmailService _emailService; 
+        private readonly IEmailService _emailService;
+        private readonly ILogger<ClienteService> _logger;
 
-        public ClienteService(IUnitOfWork unitOfWork, UserManager<Usuario> userManager, IEmailService emailService) 
+        public ClienteService(IUnitOfWork unitOfWork, UserManager<Usuario> userManager, IEmailService emailService, ILogger<ClienteService> logger)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
-            _emailService = emailService; 
+            _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Cliente>> GetAllClientesAsync()
@@ -34,6 +37,7 @@ namespace Firmeza.Infrastructure.Services
 
         public async Task<Cliente> AddClienteAsync(Cliente cliente, string password)
         {
+            _logger.LogInformation("Iniciando AddClienteAsync para el email {Email}", cliente.Usuario.Email);
             var user = cliente.Usuario;
 
             if (string.IsNullOrEmpty(user.UserName))
@@ -41,30 +45,40 @@ namespace Firmeza.Infrastructure.Services
                 user.UserName = user.Email;
             }
 
-            // Asegurarse de que FechaNacimiento sea UTC antes de crear el usuario
             user.FechaNacimiento = DateTime.SpecifyKind(user.FechaNacimiento, DateTimeKind.Utc);
+            _logger.LogInformation("Intentando crear usuario en UserManager...");
 
             var result = await _userManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {
+                _logger.LogError("Error en UserManager.CreateAsync: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
                 throw new ApplicationException($"Error al crear el usuario: {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
+            _logger.LogInformation("Usuario creado con éxito con ID {UserId}", user.Id);
 
+            _logger.LogInformation("Añadiendo usuario al rol 'Cliente'...");
             await _userManager.AddToRoleAsync(user, "Cliente");
+            _logger.LogInformation("Usuario añadido al rol 'Cliente' con éxito.");
 
             cliente.UsuarioId = user.Id;
+            cliente.Usuario = null!;
 
+            _logger.LogInformation("Añadiendo cliente al UnitOfWork...");
             await _unitOfWork.Clientes.AddAsync(cliente);
+            _logger.LogInformation("Guardando cambios en UnitOfWork...");
             await _unitOfWork.CompleteAsync();
+            _logger.LogInformation("Cliente guardado con éxito en la base de datos.");
             
-            // --- Enviar Correo de Bienvenida (DESHABILITADO TEMPORALMENTE) ---
-            // var subject = "¡Bienvenido a Firmeza Construcción!";
-            // var message = $"<h1>Hola {user.Nombre},</h1><p>Tu cuenta ha sido creada exitosamente. ¡Gracias por unirte a nosotros!</p>";
-            // await _emailService.SendEmailAsync(user.Email!, subject, message);
+            // Enviar Correo de Bienvenida
+            var subject = "¡Bienvenido a Firmeza Construcción!";
+            var message = $"<h1>Hola {user.Nombre},</h1><p>Tu cuenta ha sido creada exitosamente. ¡Gracias por unirte a nosotros!</p>";
+            await _emailService.SendEmailAsync(user.Email!, subject, message);
 
+            cliente.Usuario = user;
             return cliente;
         }
 
+        // ... (resto de los métodos)
         public async Task<Cliente?> UpdateClienteAsync(int id, Cliente cliente) 
         {
             var clienteToUpdate = await GetClienteByIdAsync(id);
@@ -77,7 +91,6 @@ namespace Firmeza.Infrastructure.Services
             clienteToUpdate.Usuario.UserName = cliente.Usuario.Email;
             clienteToUpdate.Usuario.Nombre = cliente.Usuario.Nombre;
             clienteToUpdate.Usuario.Identificacion = cliente.Usuario.Identificacion;
-            // Asegurarse de que FechaNacimiento sea UTC antes de actualizar el usuario
             clienteToUpdate.Usuario.FechaNacimiento = DateTime.SpecifyKind(cliente.Usuario.FechaNacimiento, DateTimeKind.Utc);
             clienteToUpdate.Usuario.PhoneNumber = cliente.Usuario.PhoneNumber;
 

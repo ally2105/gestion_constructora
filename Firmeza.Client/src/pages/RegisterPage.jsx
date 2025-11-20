@@ -25,13 +25,30 @@ const RegisterPage = () => {
     setError('');
     setSuccess('');
     try {
-      // El endpoint de registro de clientes está en /api/Clientes
-      await api.post('/Clientes', formData);
+      await api.post('/api/Clientes', formData); // Asegurarse de que la URL es correcta
       setSuccess('Registro exitoso. Por favor, inicia sesión.');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      console.error('Error en el registro:', err.response?.data || err.message);
-      setError(err.response?.data?.message || 'Error en el registro. Inténtalo de nuevo.');
+      console.error('Error en el registro:', err);
+      if (err.response) {
+        // El servidor respondió con un código de estado fuera del rango 2xx
+        const apiError = err.response.data;
+        // Si la API devuelve un objeto de validación de ASP.NET Core
+        if (apiError.errors) {
+          const errorMessages = Object.values(apiError.errors).flat().join(' ');
+          setError(`Error de validación: ${errorMessages}`);
+        } else if (apiError.message) {
+          setError(apiError.message);
+        } else {
+          setError(`Error ${err.response.status}: ${JSON.stringify(apiError)}`);
+        }
+      } else if (err.request) {
+        // La solicitud fue hecha pero no se recibió respuesta
+        setError('No se pudo conectar con el servidor. ¿Está la API en ejecución?');
+      } else {
+        // Algo sucedió al configurar la solicitud que provocó un error
+        setError(`Error en la configuración de la solicitud: ${err.message}`);
+      }
     }
   };
 
@@ -42,7 +59,7 @@ const RegisterPage = () => {
         {error && <p style={styles.error}>{error}</p>}
         {success && <p style={styles.success}>{success}</p>}
 
-        {/* Campos de Usuario */}
+        {/* ... (resto del formulario) ... */}
         <div style={styles.formGroup}>
           <label htmlFor="email" style={styles.label}>Email:</label>
           <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required style={styles.input} />
@@ -63,8 +80,6 @@ const RegisterPage = () => {
           <label htmlFor="fechaNacimiento" style={styles.label}>Fecha de Nacimiento:</label>
           <input type="date" id="fechaNacimiento" name="fechaNacimiento" value={formData.fechaNacimiento} onChange={handleChange} required style={styles.input} />
         </div>
-        
-        {/* Campos de Cliente */}
         <div style={styles.formGroup}>
           <label htmlFor="direccion" style={styles.label}>Dirección (Opcional):</label>
           <input type="text" id="direccion" name="direccion" value={formData.direccion} onChange={handleChange} style={styles.input} />
@@ -73,7 +88,6 @@ const RegisterPage = () => {
           <label htmlFor="telefono" style={styles.label}>Teléfono (Opcional):</label>
           <input type="tel" id="telefono" name="telefono" value={formData.telefono} onChange={handleChange} style={styles.input} />
         </div>
-
         <button type="submit" style={styles.button}>Registrarse</button>
         <p style={styles.linkText}>
           ¿Ya tienes cuenta? <Link to="/login" style={styles.link}>Inicia sesión aquí</Link>
@@ -136,6 +150,7 @@ const styles = {
   error: {
     color: '#dc3545',
     marginBottom: '15px',
+    whiteSpace: 'pre-wrap', // Para mostrar saltos de línea en el error
   },
   success: {
     color: '#28a745',
