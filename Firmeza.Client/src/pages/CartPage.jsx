@@ -2,209 +2,104 @@ import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import toast from 'react-hot-toast';
+import '../styles/CartPage.css';
 
 const CartPage = () => {
   const { cartItems, updateQuantity, removeFromCart, calculateTotals, clearCart } = useCart();
   const navigate = useNavigate();
   const { subtotal, tax, total } = calculateTotals();
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleCheckout = async () => {
-    setError('');
-    setSuccess('');
-
     if (cartItems.length === 0) {
-      setError('El carrito está vacío.');
+      toast.error('El carrito está vacío.');
       return;
     }
-
-    // En una aplicación real, obtendrías el ID del cliente del token JWT decodificado.
-    // Por ahora, asumiremos un ID de cliente (ej. 1) o lo obtendremos de alguna manera.
-    // Para este ejemplo, lo dejaremos como un valor fijo.
-    const clienteId = 1; // Reemplazar con la lógica real para obtener el ID del cliente
+    setIsProcessing(true);
+    
+    const clienteId = 1; // Placeholder
 
     try {
-      // Solo necesitamos enviar el primer producto y su cantidad para este ejemplo
-      const firstItem = cartItems[0];
-      const ventaData = {
-        clienteId: clienteId,
-        fechaVenta: new Date().toISOString(),
-        productoId: firstItem.id,
-        cantidad: firstItem.quantity,
-      };
-
-      await api.post('/api/Ventas', ventaData);
+      for (const item of cartItems) {
+        const ventaData = {
+          clienteId: clienteId,
+          fechaVenta: new Date().toISOString(),
+          productoId: item.id,
+          cantidad: item.quantity,
+        };
+        await api.post('/api/Ventas', ventaData);
+      }
       
-      setSuccess('¡Compra realizada con éxito! Se ha enviado un comprobante a tu correo.');
+      toast.success('¡Compra realizada con éxito!');
       clearCart();
-      setTimeout(() => navigate('/products'), 3000);
+      setTimeout(() => navigate('/products'), 2000);
 
     } catch (err) {
       console.error('Error al procesar la compra:', err.response?.data || err.message);
-      setError('Error al procesar la compra. Por favor, intenta de nuevo.');
+      toast.error('Error al procesar la compra.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
+  const EmptyCart = () => (
+    <div className="empty-cart-container">
+      <h3>Tu carrito está vacío</h3>
+      <p>Parece que aún no has añadido ningún producto. ¡Explora nuestro catálogo!</p>
+      <button className="btn" onClick={() => navigate('/products')}>Ver Productos</button>
+    </div>
+  );
+
   return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>Tu Carrito de Compras</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
+    <div className="main-container">
+      <h1 className="page-title">Tu Carrito de Compras</h1>
       {cartItems.length === 0 ? (
-        <p style={styles.emptyCart}>El carrito está vacío. <span style={styles.link} onClick={() => navigate('/products')}>¡Añade algunos productos!</span></p>
+        <EmptyCart />
       ) : (
-        <div>
-          <div style={styles.cartItemsGrid}>
+        <div className="cart-layout">
+          <div className="cart-items-list">
             {cartItems.map((item) => (
-              <div key={item.id} style={styles.cartItemCard}>
-                <h3 style={styles.itemName}>{item.nombre}</h3>
-                <p style={styles.itemPrice}>Precio Unitario: ${item.precio.toFixed(2)}</p>
-                <div style={styles.quantityControl}>
-                  <button onClick={() => updateQuantity(item.id, item.quantity - 1)} style={styles.quantityButton}>-</button>
-                  <span style={styles.itemQuantity}>{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item.id, item.quantity + 1)} style={styles.quantityButton}>+</button>
+              <div key={item.id} className="cart-item">
+                <div className="cart-item-details">
+                  <h5 className="cart-item-title">{item.nombre}</h5>
+                  <p className="cart-item-price">${item.precio.toFixed(2)} c/u</p>
                 </div>
-                <p style={styles.itemSubtotal}>Subtotal: ${(item.precio * item.quantity).toFixed(2)}</p>
-                <button onClick={() => removeFromCart(item.id)} style={styles.removeButton}>Eliminar</button>
+                <div className="quantity-controls">
+                  <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="quantity-btn">-</button>
+                  <span className="item-quantity">{item.quantity}</span>
+                  <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="quantity-btn">+</button>
+                </div>
+                <p className="item-subtotal">${(item.precio * item.quantity).toFixed(2)}</p>
+                <button onClick={() => removeFromCart(item.id)} className="remove-btn" title="Eliminar producto">
+                  &times;
+                </button>
               </div>
             ))}
           </div>
-          <div style={styles.totalsSummary}>
-            <p>Subtotal: ${subtotal.toFixed(2)}</p>
-            <p>IVA (19%): ${tax.toFixed(2)}</p>
-            <h3>Total: ${total.toFixed(2)}</h3>
-            <button onClick={handleCheckout} style={styles.checkoutButton}>Proceder al Pago</button>
-            <button onClick={clearCart} style={styles.clearCartButton}>Vaciar Carrito</button>
+          <div className="cart-summary">
+            <h3 className="summary-title">Resumen de Compra</h3>
+            <div className="summary-row">
+              <span>Subtotal:</span>
+              <span>${subtotal.toFixed(2)}</span>
+            </div>
+            <div className="summary-row">
+              <span>IVA (19%):</span>
+              <span>${tax.toFixed(2)}</span>
+            </div>
+            <hr style={{ borderColor: 'var(--color-border)', margin: '20px 0' }} />
+            <div className="summary-row total">
+              <span>Total:</span>
+              <span>${total.toFixed(2)}</span>
+            </div>
+            <button onClick={handleCheckout} className="btn" style={{ width: '100%' }} disabled={isProcessing}>
+              {isProcessing ? 'Procesando...' : 'Proceder al Pago'}
+            </button>
           </div>
         </div>
       )}
-      <button onClick={() => navigate('/products')} style={styles.backToProductsButton}>Volver a Productos</button>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    padding: '20px',
-    maxWidth: '900px',
-    margin: '0 auto',
-  },
-  title: {
-    textAlign: 'center',
-    color: '#333',
-    marginBottom: '30px',
-  },
-  emptyCart: {
-    textAlign: 'center',
-    fontSize: '1.2em',
-    color: '#666',
-  },
-  link: {
-    color: '#007bff',
-    cursor: 'pointer',
-    textDecoration: 'underline',
-  },
-  cartItemsGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr',
-    gap: '15px',
-    marginBottom: '30px',
-  },
-  cartItemCard: {
-    backgroundColor: '#ffffff',
-    padding: '15px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-  },
-  itemName: {
-    margin: '0',
-    color: '#007bff',
-    flexBasis: '100%',
-    marginBottom: '5px',
-  },
-  itemPrice: {
-    margin: '0',
-    color: '#555',
-    flexBasis: '100%',
-    marginBottom: '10px',
-  },
-  quantityControl: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  quantityButton: {
-    backgroundColor: '#007bff',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    width: '30px',
-    height: '30px',
-    fontSize: '1.1em',
-    cursor: 'pointer',
-    margin: '0 5px',
-  },
-  itemQuantity: {
-    fontSize: '1.1em',
-    fontWeight: 'bold',
-  },
-  itemSubtotal: {
-    fontWeight: 'bold',
-    color: '#28a745',
-    fontSize: '1.1em',
-    marginLeft: 'auto',
-  },
-  removeButton: {
-    backgroundColor: '#dc3545',
-    color: 'white',
-    padding: '8px 12px',
-    borderRadius: '5px',
-    border: 'none',
-    cursor: 'pointer',
-    marginLeft: '15px',
-  },
-  totalsSummary: {
-    backgroundColor: '#e9ecef',
-    padding: '20px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-    textAlign: 'right',
-    marginBottom: '20px',
-  },
-  checkoutButton: {
-    backgroundColor: '#28a745',
-    color: 'white',
-    padding: '12px 20px',
-    borderRadius: '5px',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '1.1em',
-    marginTop: '15px',
-    marginRight: '10px',
-  },
-  clearCartButton: {
-    backgroundColor: '#6c757d',
-    color: 'white',
-    padding: '12px 20px',
-    borderRadius: '5px',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '1.1em',
-    marginTop: '15px',
-  },
-  backToProductsButton: {
-    backgroundColor: '#6c757d',
-    color: 'white',
-    padding: '10px 15px',
-    borderRadius: '5px',
-    border: 'none',
-    cursor: 'pointer',
-    marginTop: '20px',
-  }
 };
 
 export default CartPage;

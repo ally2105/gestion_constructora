@@ -2,48 +2,44 @@
 
 @{
     ViewData["Title"] = "Gestión de Clientes";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="card">
-    <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <a asp-action="Create" class="btn btn-primary">Crear Nuevo Cliente</a>
+<div class="card-admin">
+    <div class="card-header">Gestión de Clientes</div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a asp-action="Create" class="btn-admin">Crear Nuevo Cliente</a>
+        
+        <form asp-action="Index" method="get" class="d-flex">
+            <input type="text" name="searchTerm" class="form-control-admin" placeholder="Buscar por nombre o documento..." style="margin-right: 10px;"/>
+            <button type="submit" class="btn-admin-secondary">Buscar</button>
+        </form>
+    </div>
 
-            <!-- Formulario de Búsqueda -->
-            <form asp-action="Index" method="get" class="d-flex">
-                <input type="text" name="searchTerm" class="form-control me-2" placeholder="Buscar por nombre o documento..." />
-                <button type="submit" class="btn btn-secondary">Buscar</button>
-            </form>
-        </div>
-    </div>
-    <div class="card-body">
-        <table class="table table-striped">
-            <thead>
+    <table class="table-admin">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Dirección</th>
+                <th>Fecha de Registro</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
                 <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Dirección</th>
-                    <th>Fecha de Registro</th>
-                    <th></th>
+                    <td>@Html.DisplayFor(modelItem => item.Usuario.Nombre)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Usuario.Email)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Direccion)</td>
+                    <td>@Html.DisplayFor(modelItem => item.FechaRegistro)</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn-admin-secondary btn-sm">Editar</a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-admin-secondary btn-sm" style="margin-left: 5px;">Detalles</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn-admin-danger btn-sm" style="margin-left: 5px;">Eliminar</a>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@Html.DisplayFor(modelItem => item.Usuario.Nombre)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Usuario.Email)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Direccion)</td>
-                        <td>@Html.DisplayFor(modelItem => item.FechaRegistro)</td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
-                            <a asp-action="Details" asp-route-id="@item.Id">Detalles</a> |
-                            <a asp-action="Delete" asp-route-id="@item.Id">Eliminar</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+            }
+        </tbody>
+    </table>
 </div>

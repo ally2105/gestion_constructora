@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Añadido useNavigate
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -16,63 +16,32 @@ const Navbar = () => {
   };
 
   return (
-    <nav style={styles.navbar}>
-      <div style={styles.brand}>
-        <Link to="/products" style={styles.navLink}>Firmeza</Link>
+    <header className="navbar-header">
+      <div className="navbar-container">
+        <NavLink to="/products" className="navbar-logo">Firmeza</NavLink>
+        <nav className="navbar-menu">
+          {user ? (
+            <>
+              <NavLink to="/products" className="nav-item">Productos</NavLink>
+              <NavLink to="/cart" className="nav-item">
+                Carrito 
+                {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
+              </NavLink>
+              <div className="user-menu">
+                <span className="user-name">Hola, {user.name || 'Usuario'}</span>
+                <button onClick={handleLogout} className="btn-logout">Cerrar Sesión</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <NavLink to="/login" className="nav-item">Iniciar Sesión</NavLink>
+              <NavLink to="/register" className="btn-register">Registrarse</NavLink>
+            </>
+          )}
+        </nav>
       </div>
-      <div style={styles.navLinks}>
-        {user && (
-          <>
-            <Link to="/products" style={styles.navLink}>Productos</Link>
-            <Link to="/cart" style={styles.navLink}>
-              Carrito ({totalItems})
-            </Link>
-            <button onClick={handleLogout} style={styles.logoutButton}>Cerrar Sesión</button>
-          </>
-        )}
-        {!user && (
-          <>
-            <Link to="/login" style={styles.navLink}>Iniciar Sesión</Link>
-            <Link to="/register" style={styles.navLink}>Registrarse</Link>
-          </>
-        )}
-      </div>
-    </nav>
+    </header>
   );
-};
-
-const styles = {
-  navbar: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#333',
-    padding: '10px 20px',
-    color: 'white',
-  },
-  brand: {
-    fontSize: '1.5em',
-    fontWeight: 'bold',
-  },
-  navLinks: {
-    display: 'flex',
-    gap: '20px',
-    alignItems: 'center',
-  },
-  navLink: {
-    color: 'white',
-    textDecoration: 'none',
-    fontSize: '1.1em',
-  },
-  logoutButton: {
-    backgroundColor: '#dc3545',
-    color: 'white',
-    padding: '8px 12px',
-    borderRadius: '5px',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '1em',
-  },
 };
 
 export default Navbar;

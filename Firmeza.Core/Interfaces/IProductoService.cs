@@ -6,7 +6,7 @@ namespace Firmeza.Core.Interfaces
 {
     public interface IProductoService
     {
-        Task<IEnumerable<Producto>> GetAllProductosAsync();
+        Task<(IEnumerable<Producto> Productos, int TotalRecords)> GetAllProductosAsync(int pageNumber, int pageSize);
         Task<Producto?> GetProductoByIdAsync(int id);
         Task<Producto> AddProductoAsync(Producto producto);
         Task<Producto?> UpdateProductoAsync(Producto producto);

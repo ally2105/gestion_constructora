@@ -2,68 +2,118 @@
 
 @{
     ViewData["Title"] = "Iniciar Sesión";
-    // Usamos el layout simple, ya que esta página no debe tener la barra de navegación de administrador.
-    Layout = "~/Views/Shared/_Layout.cshtml"; 
+    Layout = null; // No usar el layout principal para la página de login
 }
 
-<style>
-    /* Estilos para centrar el formulario de login */
-    .login-container {
-        min-height: 80vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #f8f9fa; /* Un fondo gris muy claro */
-    }
-
-    .login-card {
-        max-width: 400px;
-        width: 100%;
-        padding: 2rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        background-color: #ffffff;
-    }
-</style>
-
-<div class="login-container">
-    <div class="login-card">
-        <div class="text-center mb-4">
-            <i class="bi bi-building-gear" style="font-size: 3rem; color: #0d6efd;"></i>
-            <h1 class="h3 mb-3 fw-normal">Iniciar Sesión</h1>
-        </div>
-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Firmaza Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--color-bg);
+        }
+        .login-card-admin {
+            background-color: var(--color-card-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+        }
+        .login-title-admin {
+            color: var(--color-primary);
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+        .form-group-admin {
+            margin-bottom: 25px; /* Aumentar espacio */
+            text-align: left;
+        }
+        .form-group-admin label {
+            color: var(--color-text-main); /* Texto principal para labels */
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .btn-login-admin {
+            width: 100%;
+            margin-top: 20px;
+            padding: 15px; /* Aumentar padding */
+            font-size: 1.1rem; /* Aumentar tamaño de fuente */
+        }
+        .login-link-admin {
+            margin-top: 30px; /* Aumentar espacio */
+            color: var(--color-text-secondary);
+            font-size: 1rem;
+        }
+        .login-link-admin a {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+        .login-link-admin a:hover {
+            color: var(--color-primary-hover);
+        }
+        .remember-me-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            color: var(--color-text-secondary);
+        }
+        .remember-me-group input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--color-primary); /* Color del checkbox */
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card-admin">
+        <h2 class="login-title-admin">Iniciar Sesión Admin</h2>
         <form asp-action="Login">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Email" class="form-control" placeholder="name@example.com" />
+            <div class="form-group-admin">
                 <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control-admin" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Password" class="form-control" placeholder="Contraseña" />
+            <div class="form-group-admin">
                 <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control-admin" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 
-            <div class="checkbox mb-3">
-                <label asp-for="RememberMe">
-                    <input class="form-check-input" asp-for="RememberMe" />
-                    @Html.DisplayNameFor(m => m.RememberMe)
-                </label>
+            <div class="remember-me-group">
+                <input type="checkbox" asp-for="RememberMe" />
+                <label asp-for="RememberMe">Recordarme</label>
             </div>
 
-            <button class="w-100 btn btn-lg btn-primary" type="submit">Ingresar</button>
+            <button type="submit" class="btn-admin btn-login-admin">Ingresar</button>
             
-            <p class="mt-4 mb-1 text-muted text-center">
+            <p class="login-link-admin">
                 ¿No tienes una cuenta? <a asp-controller="Usuarios" asp-action="Register">Regístrate aquí</a>
             </p>
         </form>
     </div>
-</div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

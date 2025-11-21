@@ -1,7 +1,7 @@
 using AutoMapper;
 using Firmeza.Api.DTOs;
-using Firmeza.Core.Models; // Actualizado
-using Firmeza.Core.Interfaces; // Actualizado
+using Firmeza.Core.Models;
+using Firmeza.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -23,22 +23,24 @@ namespace Firmeza.Api.Controllers
             _mapper = mapper;
         }
 
-        // GET: /api/Productos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductoDto>>> GetAllProductos()
+        public async Task<ActionResult<PagedResponseDto<ProductoDto>>> GetAllProductos([FromQuery] PagingParameters pagingParameters)
         {
-            // Añadir cabeceras para deshabilitar la caché del navegador
-            Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
-            Response.Headers.Add("Pragma", "no-cache");
-            Response.Headers.Add("Expires", "0");
+            var (productos, totalRecords) = await _productoService.GetAllProductosAsync(pagingParameters.PageNumber, pagingParameters.PageSize);
+            
+            var productosDto = _mapper.Map<List<ProductoDto>>(productos);
 
-            var productos = await _productoService.GetAllProductosAsync();
-            // Mapea la lista de entidades Producto a una lista de ProductoDto.
-            var productosDto = _mapper.Map<IEnumerable<ProductoDto>>(productos);
-            return Ok(productosDto);
+            var pagedResponse = new PagedResponseDto<ProductoDto>(
+                productosDto,
+                pagingParameters.PageNumber,
+                pagingParameters.PageSize,
+                totalRecords
+            );
+
+            return Ok(pagedResponse);
         }
 
-        // GET: /api/Productos/5
+        // ... (resto de los métodos)
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductoDto>> GetProductoById(int id)
         {
@@ -47,29 +49,20 @@ namespace Firmeza.Api.Controllers
             {
                 return NotFound();
             }
-            // Mapea la entidad Producto a un ProductoDto.
             var productoDto = _mapper.Map<ProductoDto>(producto);
             return Ok(productoDto);
         }
 
-        // POST: /api/Productos
         [HttpPost]
-        [Authorize(Roles = "Administrador")] // Solo los administradores pueden crear productos.
+        [Authorize(Roles = "Administrador")]
         public async Task<ActionResult<ProductoDto>> CreateProducto([FromBody] ProductoCreateDto productoCreateDto)
         {
-            // Mapea el DTO de creación a la entidad Producto.
             var producto = _mapper.Map<Producto>(productoCreateDto);
-            
             var nuevoProducto = await _productoService.AddProductoAsync(producto);
-
-            // Mapea el producto recién creado a un DTO para devolverlo en la respuesta.
             var productoDto = _mapper.Map<ProductoDto>(nuevoProducto);
-
-            // Devuelve una respuesta 201 Created con la ubicación del nuevo recurso y el recurso mismo.
             return CreatedAtAction(nameof(GetProductoById), new { id = productoDto.Id }, productoDto);
         }
 
-        // PUT: /api/Productos/5
         [HttpPut("{id}")]
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> UpdateProducto(int id, [FromBody] ProductoCreateDto productoUpdateDto)
@@ -79,17 +72,11 @@ namespace Firmeza.Api.Controllers
             {
                 return NotFound();
             }
-
-            // Mapea los datos del DTO sobre la entidad existente.
             _mapper.Map(productoUpdateDto, productoExistente);
-
             await _productoService.UpdateProductoAsync(productoExistente);
-
-            // Devuelve una respuesta 204 No Content, que es el estándar para una actualización exitosa.
             return NoContent();
         }
 
-        // DELETE: /api/Productos/5
         [HttpDelete("{id}")]
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> DeleteProducto(int id)

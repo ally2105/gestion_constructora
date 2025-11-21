@@ -1,138 +1,196 @@
-# Sistema de Gestión de Construcción - Firmeza
+# Proyecto Firmeza: Gestión de Construcción
 
-Este proyecto es una aplicación full-stack desarrollada con ASP.NET Core que implementa un sistema de gestión para una empresa constructora. La aplicación permite administrar productos, clientes, ventas y usuarios a través de un panel de administración web y una API RESTful.
+## Descripción General
+
+Este proyecto es un sistema integral para la gestión de productos y ventas en el sector de la construcción, desarrollado con una arquitectura de microservicios (API REST) y dos interfaces de usuario: un frontend de clientes (SPA con React) y un panel de administración (ASP.NET Core MVC).
+
+El sistema permite a los clientes registrarse, iniciar sesión, explorar un catálogo de productos, añadir productos a un carrito de compras, realizar pedidos y recibir confirmaciones por correo electrónico con el comprobante de venta en formato PDF. El panel de administración ofrece funcionalidades para gestionar productos, clientes y ventas.
 
 ## Características Principales
 
-- **Panel de Administración:** Interfaz web (ASP.NET Core MVC) para la gestión de entidades de negocio.
-- **API RESTful:** API (ASP.NET Core Web API) que expone la lógica de negocio para ser consumida por clientes externos (ej. una futura app Blazor o móvil).
-- **Gestión de Productos:** CRUD completo para productos, con validaciones y búsqueda.
-- **Gestión de Clientes:** CRUD completo para clientes, integrado con el sistema de usuarios de Identity.
-- **Gestión de Ventas:** Creación de ventas, actualización de stock y generación de recibos.
-- **Autenticación y Autorización:** Sistema de roles (Administrador, Cliente) basado en ASP.NET Core Identity. La API utiliza autenticación JWT.
-- **Importación Masiva:** Carga de datos de ventas desnormalizados desde archivos Excel (.xlsx) usando EPPlus.
-- **Generación de PDF:** Creación de recibos de venta en formato PDF.
+### Frontend de Clientes (React SPA)
+- **Autenticación JWT:** Registro e inicio de sesión seguro.
+- **Catálogo de Productos:** Visualización paginada de productos con diseño corporativo.
+- **Carrito de Compras:** Gestión de productos seleccionados, cálculo de totales (subtotal, IVA, total).
+- **Proceso de Compra:** Envío de pedidos a la API.
+- **Notificaciones:** Mensajes de éxito/error mediante "toast" no intrusivos.
+- **Diseño UI/UX:** Interfaz moderna, limpia y coherente con la paleta de colores corporativa.
 
-## Arquitectura del Proyecto
+### Backend (ASP.NET Core API REST)
+- **Autenticación y Autorización:** Basada en JWT y roles (Cliente, Administrador).
+- **Gestión de Usuarios:** Integración con ASP.NET Core Identity.
+- **Gestión de Productos:** CRUD completo.
+- **Gestión de Clientes:** CRUD completo.
+- **Gestión de Ventas:** Creación de ventas y detalles asociados.
+- **Generación de PDF:** Creación de comprobantes de venta en formato PDF.
+- **Servicio de Correo:** Envío de correos electrónicos (confirmaciones, comprobantes) utilizando SMTP real (Gmail).
 
-El sistema sigue una **Arquitectura por Capas** (también conocida como Arquitectura Limpia o N-Capas) para asegurar la separación de responsabilidades, mantenibilidad y testabilidad.
-
-```
-+--------------------------+      +-------------------------+
-| gestion_construccion.web |      | gestion_construcion.api |  <-- Capa de Presentación
-+--------------------------+      +-------------------------+
-             |                                |
-             +----------------+---------------+
-                              |
-                              v
-+-----------------------------------------------------------+
-|                  Firmeza.Infrastructure                   |  <-- Capa de Infraestructura
-| (Implementaciones: Repositorios, Servicios, etc.)         |
-+-----------------------------------------------------------+
-                              |
-                              v
-+-----------------------------------------------------------+
-|                       Firmeza.Core                        |  <-- Núcleo / Dominio
-| (Entidades, Interfaces, Lógica de Negocio Pura)           |
-+-----------------------------------------------------------+
-```
-
-1.  **`Firmeza.Core` (Capa de Dominio):**
-    - Es el corazón de la aplicación. Contiene las entidades de negocio (`Cliente`, `Producto`), las interfaces (`IClienteService`, `IUnitOfWork`), DTOs compartidos y la lógica de negocio pura. No depende de ninguna otra capa.
-
-2.  **`Firmeza.Infrastructure` (Capa de Infraestructura):**
-    - Implementa las interfaces definidas en `Firmeza.Core`. Contiene el código que interactúa con sistemas externos, como la base de datos (repositorios, `UnitOfWork`) y servicios de terceros (envío de emails con `SmtpEmailService`).
-
-3.  **Capas de Presentación (UI & API):**
-    - **`gestion_construccion.web`:** Proyecto ASP.NET Core MVC con Razor. Contiene los controladores, vistas y ViewModels para el panel de administración.
-    - **`gestion_construcion.api`:** Proyecto ASP.NET Core Web API. Expone la lógica de negocio a través de endpoints RESTful, utilizando DTOs para los contratos de la API y autenticación JWT.
-
-4.  **`Firmeza.Tests` (Capa de Pruebas):**
-    - Proyecto de pruebas unitarias que utiliza `xUnit` y `Moq` para verificar la funcionalidad de las otras capas.
+### Panel de Administración (ASP.NET Core MVC)
+- **Autenticación:** Inicio de sesión para administradores.
+- **Gestión de Productos:** CRUD de productos.
+- **Gestión de Clientes:** CRUD de clientes.
+- **Gestión de Ventas:** Visualización de ventas.
+- **Diseño UI/UX:** Interfaz profesional y coherente con la paleta de colores corporativa.
 
 ## Tecnologías Utilizadas
 
-- **Backend:** C#, ASP.NET Core 8, Entity Framework Core 8
-- **Frontend:** HTML, CSS, Bootstrap 5
-- **Base de Datos:** PostgreSQL
-- **Autenticación:** ASP.NET Core Identity (para la web), JWT (para la API)
-- **Librerías Clave:**
-  - `AutoMapper`: Para mapear entre entidades y DTOs/ViewModels.
-  - `EPPlus`: Para la lectura de archivos Excel.
-  - `iTextSharp`: Para la generación de archivos PDF (se recomienda migrar a una alternativa moderna).
-  - `MailKit`: Para el envío de correos electrónicos.
-  - `Npgsql.EntityFrameworkCore.PostgreSQL`: Proveedor de EF Core para PostgreSQL.
-  - `Swashbuckle`: Para la documentación de la API (Swagger).
+### Frontend
+- **React:** Librería para construir interfaces de usuario.
+- **Vite:** Herramienta de construcción rápida para proyectos frontend.
+- **Axios:** Cliente HTTP para comunicación con la API.
+- **React Router DOM:** Para la navegación en la SPA.
+- **jwt-decode:** Para decodificar tokens JWT en el cliente.
+- **react-hot-toast:** Para notificaciones "toast".
+- **CSS Personalizado:** Para el diseño UI/UX.
 
-## Instrucciones de Instalación y Ejecución
+### Backend
+- **ASP.NET Core 8:** Framework para construir la API REST y el panel de administración.
+- **Entity Framework Core:** ORM para interacción con la base de datos.
+- **PostgreSQL:** Base de datos relacional.
+- **ASP.NET Core Identity:** Sistema de gestión de usuarios y roles.
+- **JWT (JSON Web Tokens):** Para autenticación segura.
+- **AutoMapper:** Para mapeo de objetos entre DTOs y entidades.
+- **MailKit:** Librería para el envío de correos electrónicos vía SMTP.
+- **iTextSharp:** Librería para la generación de documentos PDF.
+- **Microsoft.Extensions.Logging:** Para el registro de eventos.
 
-### Ejecución Local (requiere .NET 8 SDK y PostgreSQL)
+## Configuración del Entorno
 
-1.  **Clonar el Repositorio:**
-    ```bash
-    git clone <URL_DEL_REPOSITORIO>
-    cd Firmeza
-    ```
+### Prerrequisitos
+Asegúrate de tener instalado lo siguiente:
+- **.NET SDK 8.0:** [Descargar .NET](https://dotnet.microsoft.com/download)
+- **Node.js y npm:** [Descargar Node.js](https://nodejs.org/)
+- **PostgreSQL:** Servidor de base de datos. Puedes instalarlo localmente o usar Docker.
+- **Git:** Para clonar el repositorio.
 
-2.  **Configurar la Base de Datos:**
-    - Asegúrate de tener una instancia de PostgreSQL en ejecución.
-    - Abre los archivos `gestion_construccion.web/appsettings.json` y `gestion_construcion.api/appsettings.json`.
-    - Modifica la `ConnectionString` en ambos archivos con tus credenciales de PostgreSQL:
-      ```json
-      "ConnectionStrings": {
-        "DefaultConnection": "Host=localhost;Database=gestion_construccion;Username=TU_USUARIO;Password=TU_CONTRASEÑA"
-      }
-      ```
+### Configuración de la Base de Datos (PostgreSQL)
+1. Asegúrate de que tu servidor PostgreSQL esté en ejecución.
+2. **Cadena de Conexión:** Abre los archivos `appsettings.json` en `gestion_construcion.api` y `gestion_construccion.web`.
+   - `Firmeza/gestion_construcion.api/appsettings.json`
+   - `Firmeza/gestion_construccion.web/appsettings.json`
+   - Verifica que la `DefaultConnection` apunte a tu instancia de PostgreSQL. Ejemplo:
+     ```json
+     "ConnectionStrings": {
+       "DefaultConnection": "Host=localhost;Database=gestion_construccion;Username=postgres;Password=Qwe.123*"
+     }
+     ```
+     (Asegúrate de que `Database`, `Username` y `Password` coincidan con tu configuración de PostgreSQL).
 
-3.  **Aplicar Migraciones:**
-    - **Importante:** Las migraciones ahora se gestionan desde el proyecto `gestion_construccion.web`.
-    - Navega a la carpeta del proyecto web:
-      ```bash
-      cd gestion_construccion.web
-      ```
-    - Ejecuta el siguiente comando para crear la base de datos y aplicar el esquema:
-      ```bash
-      dotnet ef database update
-      ```
+3. **Migraciones de Entity Framework Core:**
+   - Abre una terminal en la carpeta `Firmeza/gestion_construcion.api`.
+   - Ejecuta los siguientes comandos para aplicar las migraciones y crear la base de datos:
+     ```bash
+     dotnet ef database update
+     ```
+     (Si es la primera vez, es posible que necesites `dotnet ef migrations add InitialCreate` primero, pero el proyecto ya debería tenerlas).
 
-4.  **Ejecutar la Aplicación (Web y API):**
-    - Desde la carpeta raíz de la solución (`Firmeza`), ejecuta el siguiente comando:
-      ```bash
-      dotnet run --project gestion_construccion.web
-      ```
-    - En otra terminal, ejecuta la API:
-      ```bash
-      dotnet run --project gestion_construcion.api
-      ```
-    - La aplicación web estará disponible en la URL que indique la consola (ej: `http://localhost:5031`).
-    - La API estará disponible en otra URL (ej: `http://localhost:5001`).
+### Configuración del Servicio de Correo (Gmail SMTP)
+1. **Generar Contraseña de Aplicación de Gmail:**
+   - Ve a [myaccount.google.com](https://myaccount.google.com).
+   - En "Seguridad", asegúrate de que la "Verificación en dos pasos" esté **ACTIVADA**.
+   - Busca "Contraseñas de Aplicación" y genera una nueva para "Correo" y "Otro (nombre personalizado)". Copia la contraseña de 16 caracteres.
+2. **Actualizar `appsettings.json`:**
+   - En `Firmeza/gestion_construcion.api/appsettings.json` y `Firmeza/gestion_construccion.web/appsettings.json`, actualiza la sección `SmtpSettings` con tus credenciales de Gmail y la contraseña de aplicación generada:
+     ```json
+     "SmtpSettings": {
+       "Server": "smtp.gmail.com",
+       "Port": 587,
+       "SenderName": "Firmeza Construcción",
+       "SenderEmail": "tu_email_de_gmail@gmail.com", // Tu dirección de Gmail
+       "Username": "tu_email_de_gmail@gmail.com",     // Tu dirección de Gmail
+       "Password": "TU_CONTRASEÑA_DE_APLICACION"       // La contraseña de 16 caracteres
+     }
+     ```
+     (Reemplaza `tu_email_de_gmail@gmail.com` y `TU_CONTRASEÑA_DE_APLICACION` con tus datos reales).
 
-5.  **Acceder a la Aplicación:**
-    - Navega a la URL de la aplicación web.
-    - Inicia sesión con las credenciales de administrador por defecto:
-      - **Email:** `admin@firmeza.com`
-      - **Password:** `Admin123!`
-    - Puedes explorar la API a través de su URL de Swagger (ej: `http://localhost:5001/swagger`).
+### Configuración JWT
+- La configuración JWT se encuentra en `Firmeza/gestion_construcion.api/appsettings.json`. Asegúrate de que `Key` sea una cadena larga y segura.
+  ```json
+  "Jwt": {
+    "Key": "ESTA_ES_MI_CLAVE_SECRETA_SUPER_LARGA_Y_COMPLEJA_PARA_FIRMAR_TOKENS_JWT_DEBE_TENER_AL_MENOS_32_CARACTERES",
+    "Issuer": "FirmezaAPI",
+    "Audience": "FirmezaClientes"
+  }
+  ```
 
-### Ejecución con Docker (Recomendado)
+## Ejecución del Proyecto
 
-El proyecto está configurado para ejecutarse fácilmente con Docker y Docker Compose.
+El proyecto consta de tres partes que se ejecutan de forma independiente: la API, el Frontend de Clientes y el Panel de Administración.
 
-1.  **Requisitos:** Tener Docker y Docker Compose instalados.
+### 1. Iniciar la API (Backend)
+- Abre una terminal en la carpeta `Firmeza/gestion_construcion.api`.
+- Ejecuta:
+  ```bash
+  dotnet run
+  ```
+- La API se iniciará y estará disponible en `http://localhost:5165`.
 
-2.  **Ejecutar Docker Compose:**
-    - Desde la carpeta raíz de la solución (`Firmeza`), ejecuta el siguiente comando:
-      ```bash
-      docker-compose up --build
-      ```
-    - Este comando hará lo siguiente:
-      - Construirá imágenes para la aplicación web y la API.
-      - Creará un contenedor para la base de datos PostgreSQL.
-      - Iniciará todos los servicios y los conectará.
+### 2. Iniciar el Frontend de Clientes (React SPA)
+- Abre **otra** terminal en la carpeta `Firmeza/Firmeza.Client`.
+- Primero, instala las dependencias (solo la primera vez o si `package.json` cambia):
+  ```bash
+  npm install
+  ```
+- Luego, inicia la aplicación:
+  ```bash
+  npm run dev
+  ```
+- El frontend se iniciará y estará disponible en `http://localhost:3000`.
 
-3.  **Acceder a la Aplicación:**
-    - La aplicación web estará disponible en `http://localhost:8080`.
-    - La API estará disponible en `http://localhost:8081`.
-    - La base de datos PostgreSQL estará accesible en el puerto `5432` de tu máquina local.
-    - El usuario administrador se creará automáticamente al iniciar la aplicación.
+### 3. Iniciar el Panel de Administración (ASP.NET Core MVC)
+- Abre **otra** terminal en la carpeta `Firmeza/gestion_construccion.web`.
+- Ejecuta:
+  ```bash
+  dotnet run
+  ```
+- El panel de administración se iniciará y estará disponible en `http://localhost:5031` (o el puerto configurado).
+
+## Credenciales por Defecto
+
+### Panel de Administración
+- **Usuario:** `admin@firmeza.com`
+- **Contraseña:** `Admin123!`
+  (Este usuario se crea automáticamente si la base de datos está vacía y se ejecuta `SeedData`).
+
+### Frontend de Clientes
+- Puedes registrar nuevos usuarios desde la página de registro (`http://localhost:3000/register`).
+
+## Estructura del Proyecto
+
+```
+Firmeza/
+├── Firmeza.Core/                  # Contratos (Interfaces), Modelos de Dominio, DTOs
+├── Firmeza.Infrastructure/        # Implementaciones de Interfaces, Repositorios, Servicios (EF Core, Email, PDF)
+├── Firmeza.Client/                # Frontend de Clientes (React SPA)
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── index.html
+│   ├── package.json
+│   └── vite.config.js
+├── gestion_construcion.api/       # Backend (ASP.NET Core API REST)
+│   ├── Controllers/
+│   ├── DTOs/
+│   ├── Profiles/
+│   ├── appsettings.json
+│   ├── Program.cs
+│   └── gestion_construcion.api.csproj
+├── gestion_construccion.web/      # Panel de Administración (ASP.NET Core MVC)
+│   ├── Controllers/
+│   ├── Models/
+│   ├── Views/
+│   ├── wwwroot/
+│   │   ├── css/admin-theme.css
+│   │   └── ...
+│   ├── appsettings.json
+│   ├── Program.cs
+│   └── gestion_construccion.web.csproj
+├── Firmeza.sln                    # Archivo de solución de Visual Studio
+└── README.md                      # Este archivo
 ```

@@ -1,21 +1,34 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model gestion_construccion.web.Models.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
 }
 
-<!-- BOTÓN DE CERRAR SESIÓN AÑADIDO -->
-<ul class="navbar-nav">
-    @if (User.Identity != null && User.Identity.IsAuthenticated) // <-- COMPROBACIÓN AÑADIDA
-    {
-        <li class="nav-item">
-            <form class="form-inline" asp-controller="Usuarios" asp-action="Logout" method="post">
-                <button type="submit" class="nav-link btn btn-link text-dark">Cerrar Sesión</button>
-            </form>
-        </li>
-    }
-    else
-    {
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Usuarios" asp-action="Login">Iniciar Sesión</a>
-        </li>
-    }
-</ul>
+<h1 class="page-title">Dashboard de Administración</h1>
+
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="icon">📦</div> <!-- Icono de producto -->
+        <div class="value">@Model.TotalProductos</div>
+        <div class="label">Productos</div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="icon">👥</div> <!-- Icono de clientes -->
+        <div class="value">@Model.TotalClientes</div>
+        <div class="label">Clientes</div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="icon">💰</div> <!-- Icono de ventas -->
+        <div class="value">@Model.TotalVentas</div>
+        <div class="label">Ventas Realizadas</div>
+    </div>
+</div>
+
+<div class="dashboard-actions">
+    <a asp-controller="Productos" asp-action="Index" class="btn-admin">Gestionar Productos</a>
+    <a asp-controller="Clientes" asp-action="Index" class="btn-admin-secondary">Gestionar Clientes</a>
+    <a asp-controller="Ventas" asp-action="Index" class="btn-admin-secondary">Ver Ventas</a>
+    <!-- Puedes añadir más botones aquí -->
+</div>

@@ -2,54 +2,50 @@
 
 @{
     ViewData["Title"] = "Crear Nueva Venta";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="card-admin">
+    <div class="card-header">Crear Nueva Venta</div>
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <h4 style="color: var(--color-primary); margin-top: 15px; margin-bottom: 20px;">Detalles de la Venta</h4>
+        
+        <div class="form-group-admin">
+            <label asp-for="ClienteId"></label>
+            <select asp-for="ClienteId" class="form-control-admin" asp-items="ViewBag.ClienteId">
+                <option value="">-- Seleccione un Cliente --</option>
+            </select>
+            <span asp-validation-for="ClienteId" class="text-danger"></span>
+        </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="ClienteId" class="control-label"></label>
-                <select asp-for="ClienteId" class="form-control" asp-items="ViewBag.ClienteId">
-                    <option value="">-- Seleccione un Cliente --</option>
-                </select>
-                <span asp-validation-for="ClienteId" class="text-danger"></span>
-            </div>
+        <div class="form-group-admin">
+            <label asp-for="FechaVenta"></label>
+            <input asp-for="FechaVenta" class="form-control-admin" type="datetime-local" />
+            <span asp-validation-for="FechaVenta" class="text-danger"></span>
+        </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="FechaVenta" class="control-label"></label>
-                <input asp-for="FechaVenta" class="form-control" />
-                <span asp-validation-for="FechaVenta" class="text-danger"></span>
-            </div>
+        <h4 style="color: var(--color-primary); margin-top: 30px; margin-bottom: 20px;">Productos de la Venta</h4>
+        
+        <div class="form-group-admin">
+            <label asp-for="ProductoId"></label>
+            <select asp-for="ProductoId" class="form-control-admin" asp-items="ViewBag.ProductoId">
+                <option value="">-- Seleccione un Producto --</option>
+            </select>
+            <span asp-validation-for="ProductoId" class="text-danger"></span>
+        </div>
 
-            <hr />
-            <h4>Productos</h4>
-            
-            <div class="form-group mb-3">
-                <label asp-for="ProductoId" class="control-label"></label>
-                <select asp-for="ProductoId" class="form-control" asp-items="ViewBag.ProductoId">
-                    <option value="">-- Seleccione un Producto --</option>
-                </select>
-                <span asp-validation-for="ProductoId" class="text-danger"></span>
-            </div>
+        <div class="form-group-admin">
+            <label asp-for="Cantidad"></label>
+            <input asp-for="Cantidad" class="form-control-admin" type="number" min="1" />
+            <span asp-validation-for="Cantidad" class="text-danger"></span>
+        </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Cantidad" class="control-label"></label>
-                <input asp-for="Cantidad" class="form-control" type="number" min="1" />
-                <span asp-validation-for="Cantidad" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mt-4">
-                <input type="submit" value="Crear Venta" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-            </div>
-        </form>
-    </div>
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn-admin">Crear Venta</button>
+            <a asp-action="Index" class="btn-admin-secondary" style="margin-left: 10px;">Volver a la lista</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

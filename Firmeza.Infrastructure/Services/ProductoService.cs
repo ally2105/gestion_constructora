@@ -16,9 +16,16 @@ namespace Firmeza.Infrastructure.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Producto>> GetAllProductosAsync()
+        public async Task<(IEnumerable<Producto> Productos, int TotalRecords)> GetAllProductosAsync(int pageNumber, int pageSize)
         {
-            return await _unitOfWork.Productos.GetAllAsync();
+            var query = _unitOfWork.Productos.GetQuery();
+            var totalRecords = await query.CountAsync();
+            var productos = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            
+            return (productos, totalRecords);
         }
 
         public async Task<Producto?> GetProductoByIdAsync(int id)
@@ -54,7 +61,8 @@ namespace Firmeza.Infrastructure.Services
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
-                return await GetAllProductosAsync();
+                var (productos, _) = await GetAllProductosAsync(1, 50); // Devuelve la primera página en búsqueda vacía
+                return productos;
             }
 
             return await _unitOfWork.Productos.FindAsync(p => 

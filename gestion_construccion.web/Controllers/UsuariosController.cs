@@ -1,8 +1,9 @@
-using Firmeza.Core.Models; // Actualizado
+using Firmeza.Core.Models;
 using gestion_construccion.web.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging; // <-- AÑADIDO
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization; // Añadido
 
 namespace gestion_construccion.web.Controllers
 {
@@ -10,22 +11,24 @@ namespace gestion_construccion.web.Controllers
     {
         private readonly UserManager<Usuario> _userManager;
         private readonly SignInManager<Usuario> _signInManager;
-        private readonly ILogger<UsuariosController> _logger; // <-- AÑADIDO
+        private readonly ILogger<UsuariosController> _logger;
 
-        public UsuariosController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager, ILogger<UsuariosController> logger) // <-- AÑADIDO
+        public UsuariosController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager, ILogger<UsuariosController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _logger = logger; // <-- AÑADIDO
+            _logger = logger;
         }
 
         [HttpGet]
+        [AllowAnonymous] // Permitir acceso anónimo
         public IActionResult Login()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous] // Permitir acceso anónimo
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
@@ -34,7 +37,6 @@ namespace gestion_construccion.web.Controllers
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user != null)
                 {
-                    // Comprobar si el usuario tiene el rol 'Cliente'
                     var isClient = await _userManager.IsInRoleAsync(user, "Cliente");
                     if (isClient)
                     {
@@ -45,9 +47,8 @@ namespace gestion_construccion.web.Controllers
                     var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
                     if (result.Succeeded)
                     {
-                        // --- Lógica de redirección basada en roles ---
                         var isAdmin = await _userManager.IsInRoleAsync(user, "Administrador");
-                        _logger.LogInformation("Usuario {Email} inició sesión. ¿Es Administrador? {IsAdmin}", user.Email, isAdmin); // <-- AÑADIDO
+                        _logger.LogInformation("Usuario {Email} inició sesión. ¿Es Administrador? {IsAdmin}", user.Email, isAdmin);
 
                         if (isAdmin)
                         {
@@ -65,12 +66,14 @@ namespace gestion_construccion.web.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous] // Permitir acceso anónimo
         public IActionResult Register()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous] // Permitir acceso anónimo
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -80,8 +83,7 @@ namespace gestion_construccion.web.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    // Por defecto, los usuarios registrados desde aquí serán Clientes
-                    await _userManager.AddToRoleAsync(user, "Cliente");
+                    await _userManager.AddToRoleAsync(user, "Cliente"); // Por defecto, los usuarios registrados desde aquí serán Clientes
                     return RedirectToAction("Login");
                 }
                 foreach (var error in result.Errors)

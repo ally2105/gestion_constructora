@@ -2,36 +2,103 @@
 
 @{
     ViewData["Title"] = "Registrarse";
+    Layout = null; // No usar el layout principal para la página de registro
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<div class="row">
-    <div class="col-md-4">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Firmaza Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--color-bg);
+        }
+        .register-card-admin {
+            background-color: var(--color-card-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 40px;
+            max-width: 550px; /* Un poco más ancho para más campos */
+            width: 100%;
+            text-align: center;
+        }
+        .register-title-admin {
+            color: var(--color-primary);
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+        .form-group-admin {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .form-group-admin label {
+            color: var(--color-text-main);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .btn-register-admin {
+            width: 100%;
+            margin-top: 20px;
+            padding: 15px;
+            font-size: 1.1rem;
+        }
+        .register-link-admin {
+            margin-top: 30px;
+            color: var(--color-text-secondary);
+            font-size: 1rem;
+        }
+        .register-link-admin a {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+        .register-link-admin a:hover {
+            color: var(--color-primary-hover);
+        }
+    </style>
+</head>
+<body>
+    <div class="register-card-admin">
+        <h2 class="register-title-admin">Registrar Administrador</h2>
         <form asp-action="Register">
-            <h4>Crear una nueva cuenta.</h4>
-            <hr />
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group">
+            <div asp-validation-summary="All" class="validation-summary-errors"></div>
+
+            <div class="form-group-admin">
                 <label asp-for="Email"></label>
-                <input asp-for="Email" class="form-control" />
+                <input asp-for="Email" class="form-control-admin" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group-admin">
                 <label asp-for="Password"></label>
-                <input asp-for="Password" class="form-control" />
+                <input asp-for="Password" class="form-control-admin" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group-admin">
                 <label asp-for="ConfirmPassword"></label>
-                <input asp-for="ConfirmPassword" class="form-control" />
+                <input asp-for="ConfirmPassword" class="form-control-admin" />
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
-            <button type="submit" class="btn btn-primary">Registrarse</button>
+            <button type="submit" class="btn-admin btn-register-admin">Registrarse</button>
+            
+            <p class="register-link-admin">
+                ¿Ya tienes una cuenta? <a asp-controller="Usuarios" asp-action="Login">Inicia sesión aquí</a>
+            </p>
         </form>
     </div>
-</div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

@@ -2,10 +2,10 @@ using Firmeza.Core.Models;
 using Firmeza.Api.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging; // Añadido
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using System; // Añadido
-using System.Collections.Generic; // Añadido
+using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -20,18 +20,18 @@ namespace Firmeza.Api.Controllers
         private readonly UserManager<Usuario> _userManager;
         private readonly SignInManager<Usuario> _signInManager;
         private readonly IConfiguration _configuration;
-        private readonly ILogger<AuthController> _logger; // Añadido
+        private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             UserManager<Usuario> userManager,
             SignInManager<Usuario> signInManager,
             IConfiguration configuration,
-            ILogger<AuthController> logger) // Añadido logger
+            ILogger<AuthController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            _logger = logger; // Asignado
+            _logger = logger;
         }
 
         [HttpPost("login")]
@@ -70,6 +70,7 @@ namespace Firmeza.Api.Controllers
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+                new Claim(ClaimTypes.Name, user.Nombre), // <-- AÑADIDO
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import api from '../services/api';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext(null);
 
@@ -9,23 +10,28 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      console.log("AuthContext: Token encontrado en localStorage. Configurando cabecera de axios.");
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser({ isAuthenticated: true }); 
-    } else {
-      console.log("AuthContext: No se encontró token en localStorage.");
+      try {
+        const decodedToken = jwtDecode(token);
+        // El nombre del usuario está en el claim 'name' que configuramos en la API
+        // El email está en 'email'
+        setUser({ 
+          name: decodedToken.name, 
+          email: decodedToken.email 
+        });
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      } catch (error) {
+        console.error("AuthContext: Token inválido.", error);
+        logout();
+      }
     }
   }, [token]);
 
   const login = async (email, password) => {
     try {
-      console.log("AuthContext: Intentando iniciar sesión...");
       const response = await api.post('/api/auth/login', { email, password });
       const { token } = response.data;
-      console.log("AuthContext: Token recibido de la API:", token);
       localStorage.setItem('token', token);
-      setToken(token);
-      setUser({ isAuthenticated: true });
+      setToken(token); // Esto disparará el useEffect para decodificar el token
       return true;
     } catch (error) {
       console.error('Error en el inicio de sesión:', error);
@@ -35,7 +41,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    console.log("AuthContext: Cerrando sesión y limpiando token.");
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
