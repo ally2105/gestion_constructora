@@ -2,40 +2,73 @@
 
 @{
     ViewData["Title"] = "Resultado de la Importación";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    // No se especifica Layout, por lo que usará _Layout.cshtml por defecto.
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<div class="alert alert-info">
-    <p><strong>Resumen de la operación:</strong></p>
-    <ul>
-        <li>Filas procesadas: @Model.FilasProcesadas</li>
-        <li>Ventas creadas: @Model.VentasCreadas</li>
-        <li>Clientes nuevos: @Model.ClientesNuevos</li>
-        <li>Productos nuevos: @Model.ProductosNuevos</li>
-    </ul>
-</div>
-
-@if (Model.Errores.Any())
-{
-    <div class="alert alert-danger">
-        <h4>Se encontraron los siguientes errores:</h4>
-        <ul>
-            @foreach (var error in Model.Errores)
-            {
-                <li>@error</li>
-            }
-        </ul>
+<div class="card-admin card-admin-enhanced">
+    <div class="card-header card-header-enhanced">
+        <div class="header-left">
+            <i class="fas fa-file-excel icon-header"></i>
+            <div>
+                <h2 class="title">Resultado de la Importación</h2>
+                <p class="subtitle">Resumen del proceso de carga de datos desde Excel</p>
+            </div>
+        </div>
     </div>
-}
-else
-{
-    <div class="alert alert-success">
-        <h4>¡Importación completada con éxito y sin errores!</h4>
-    </div>
-}
 
-<div class="mt-3">
-    <a asp-action="Index" class="btn btn-secondary">Volver a Importar</a>
+    <div class="form-content">
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="validation-summary-errors" style="margin-bottom: 20px;">
+                <ul>
+                    <li>@TempData["ErrorMessage"]</li>
+                </ul>
+            </div>
+        }
+
+        @if (Model.Errores.Any())
+        {
+            <div class="validation-summary-errors" style="margin-bottom: 20px;">
+                <h4><i class="fas fa-exclamation-triangle"></i> Se encontraron los siguientes errores:</h4>
+                <ul>
+                    @foreach (var error in Model.Errores)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </div>
+        }
+        else
+        {
+            <div class="card-admin" style="background-color: #2ECC711A; border-color: #2ECC71; margin-bottom: 20px;">
+                <h4 style="color: var(--color-price);"><i class="fas fa-check-circle"></i> ¡Importación completada con éxito y sin errores!</h4>
+            </div>
+        }
+
+        <div class="card-admin" style="margin-top: 20px;">
+            <div class="card-header" style="margin: -25px -25px 25px -25px;">Resumen de la Operación</div>
+            <dl class="row">
+                <dt class="col-sm-6" style="color: var(--color-text-secondary);">Filas Procesadas:</dt>
+                <dd class="col-sm-6">@Model.FilasProcesadas</dd>
+
+                <dt class="col-sm-6" style="color: var(--color-text-secondary);">Ventas Creadas:</dt>
+                <dd class="col-sm-6">@Model.VentasCreadas</dd>
+
+                <dt class="col-sm-6" style="color: var(--color-text-secondary);">Clientes Nuevos:</dt>
+                <dd class="col-sm-6">@Model.ClientesNuevos</dd>
+
+                <dt class="col-sm-6" style="color: var(--color-text-secondary);">Productos Nuevos:</dt>
+                <dd class="col-sm-6">@Model.ProductosNuevos</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a asp-action="Index" class="btn-admin btn-save">
+            <i class="fas fa-upload"></i> Realizar otra Importación
+        </a>
+        <a asp-controller="Admin" asp-action="Dashboard" class="btn-admin-secondary btn-cancel">
+            <i class="fas fa-tachometer-alt"></i> Ir al Dashboard
+        </a>
+    </div>
 </div>

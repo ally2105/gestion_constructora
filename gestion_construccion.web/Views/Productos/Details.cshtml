@@ -2,55 +2,69 @@
 
 @{
     ViewData["Title"] = "Detalles del Producto";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<div class="card">
-    <div class="card-header">
-        <h4>Producto: @Model.Nombre</h4>
+<div class="card-admin card-admin-enhanced">
+    <div class="card-header card-header-enhanced">
+        <div class="header-left">
+            <i class="fas fa-box icon-header"></i>
+            <div>
+                <h2 class="title">@Model.Nombre</h2>
+                <p class="subtitle">Información detallada del producto</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="badge-id">ID: @Model.Id</span>
+        </div>
     </div>
-    <div class="card-body">
-        <dl class="row">
-            <dt class="col-sm-3">
-                @Html.DisplayNameFor(model => model.Id)
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => model.Id)
-            </dd>
 
-            <dt class="col-sm-3">
-                @Html.DisplayNameFor(model => model.Nombre)
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => model.Nombre)
-            </dd>
+    <div class="form-content">
+        @if (Model != null)
+        {
+            <dl class="row-details">
+                <dt>Descripción:</dt>
+                <dd>@Html.DisplayFor(model => model.Descripcion)</dd>
 
-            <dt class="col-sm-3">
-                @Html.DisplayNameFor(model => model.Descripcion)
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => model.Descripcion)
-            </dd>
+                <dt>Precio:</dt>
+                <dd style="color: var(--color-price);">@Model.Precio.ToString("C")</dd>
 
-            <dt class="col-sm-3">
-                @Html.DisplayNameFor(model => model.Precio)
-            </dt>
-            <dd class="col-sm-9">
-                @Model.Precio.ToString("C")
-            </dd>
-
-            <dt class="col-sm-3">
-                @Html.DisplayNameFor(model => model.Stock)
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => model.Stock)
-            </dd>
-        </dl>
+                <dt>Stock:</dt>
+                <dd>@Html.DisplayFor(model => model.Stock)</dd>
+            </dl>
+        }
+        else
+        {
+            <p style="color: var(--color-text-secondary);">No se encontraron los detalles del producto.</p>
+        }
     </div>
-    <div class="card-footer">
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
-        <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+
+    <div class="form-actions">
+        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn-admin btn-save">
+            <i class="fas fa-edit"></i> Editar Producto
+        </a> 
+        <a asp-action="Index" class="btn-admin-secondary btn-cancel">
+            <i class="fas fa-arrow-alt-circle-left"></i> Volver a la lista
+        </a>
     </div>
 </div>
+
+<style>
+    .row-details {
+        display: grid;
+        grid-template-columns: 150px 1fr; /* Ancho fijo para dt, el resto para dd */
+        gap: 10px 20px;
+        margin-top: 20px;
+        padding: 15px;
+        background-color: var(--color-bg);
+        border-radius: var(--radius);
+        border: 1px solid var(--color-border);
+    }
+    .row-details dt {
+        color: var(--color-text-secondary);
+        font-weight: 600;
+    }
+    .row-details dd {
+        margin-left: 0;
+        color: var(--color-text-main);
+    }
+</style>

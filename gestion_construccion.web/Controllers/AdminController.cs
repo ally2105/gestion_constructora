@@ -1,7 +1,9 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Firmeza.Core.Interfaces;
 using System.Threading.Tasks;
-using Firmeza.Core.Interfaces; // Updated using
+using gestion_construccion.web.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace gestion_construccion.web.Controllers
 {
@@ -17,15 +19,13 @@ namespace gestion_construccion.web.Controllers
 
         public async Task<IActionResult> Dashboard()
         {
-            var totalProductos = (await _unitOfWork.Productos.GetAllAsync()).Count();
-            var totalClientes = (await _unitOfWork.Clientes.GetAllAsync()).Count();
-            var totalVentas = (await _unitOfWork.Ventas.GetAllAsync()).Count();
-
-            ViewData["TotalProductos"] = totalProductos;
-            ViewData["TotalClientes"] = totalClientes;
-            ViewData["TotalVentas"] = totalVentas;
-
-            return View();
+            var model = new DashboardViewModel
+            {
+                TotalProductos = await _unitOfWork.Productos.GetQuery().CountAsync(),
+                TotalClientes = await _unitOfWork.Clientes.GetQuery().CountAsync(),
+                TotalVentas = await _unitOfWork.Ventas.GetQuery().CountAsync(),
+            };
+            return View(model);
         }
     }
 }

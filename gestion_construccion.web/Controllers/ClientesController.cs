@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using gestion_construccion.web.Models.ViewModels; // Se mantiene para los ViewModels
-using Firmeza.Core.Interfaces; // Nuevo using para la interfaz IClienteService
-using Firmeza.Core.Models; // Nuevo using para las entidades Cliente y Usuario
+using gestion_construccion.web.Models.ViewModels;
+using Firmeza.Core.Interfaces;
+using Firmeza.Core.Models;
 
 namespace gestion_construccion.web.Controllers
 {
@@ -18,48 +18,49 @@ namespace gestion_construccion.web.Controllers
             _clienteService = clienteService;
         }
 
-        // GET: Clientes
         public async Task<IActionResult> Index(string searchTerm)
         {
             var clientes = await _clienteService.SearchClientesAsync(searchTerm);
             return View(clientes);
         }
 
-        // GET: Clientes/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new ClienteViewModel());
         }
 
-        // POST: Clientes/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ClienteViewModel model)
         {
+            // Validación explícita para la contraseña en la creación
+            if (string.IsNullOrEmpty(model.Password))
+            {
+                ModelState.AddModelError("Password", "La contraseña es obligatoria.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Mapear ClienteViewModel a Cliente y Usuario
                     var usuario = new Usuario
                     {
                         Email = model.Email,
-                        UserName = model.Email, // UserName suele ser el mismo que Email para Identity
+                        UserName = model.Email,
                         Nombre = model.Nombre,
                         Identificacion = model.Identificacion,
                         FechaNacimiento = model.FechaNacimiento,
-                        PhoneNumber = model.Telefono // Asignar el teléfono
+                        PhoneNumber = model.Telefono
                     };
 
                     var newCliente = new Cliente
                     {
                         Usuario = usuario,
                         Direccion = model.Direccion,
-                        FechaRegistro = DateTime.UtcNow // Se puede establecer aquí o en el servicio
+                        FechaRegistro = DateTime.UtcNow
                     };
 
-                    // Pasar la contraseña al servicio
-                    await _clienteService.AddClienteAsync(newCliente, model.Password);
+                    await _clienteService.AddClienteAsync(newCliente, model.Password!);
                     return RedirectToAction(nameof(Index));
                 }
                 catch (ApplicationException ex)
@@ -75,49 +76,48 @@ namespace gestion_construccion.web.Controllers
             return View(model);
         }
 
-        // GET: Clientes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
             var cliente = await _clienteService.GetClienteByIdAsync(id.Value);
             if (cliente == null || cliente.Usuario == null) return NotFound();
 
-            // Mapear Cliente a ClienteEditViewModel para la vista
-            var viewModel = new ClienteEditViewModel
+            var viewModel = new ClienteViewModel
             {
+                Id = cliente.Id,
                 Email = cliente.Usuario.Email,
                 Nombre = cliente.Usuario.Nombre,
                 Identificacion = cliente.Usuario.Identificacion,
                 FechaNacimiento = cliente.Usuario.FechaNacimiento,
                 Direccion = cliente.Direccion,
-                Telefono = cliente.Usuario.PhoneNumber // Asignar el teléfono
+                Telefono = cliente.Usuario.PhoneNumber
             };
             
             return View(viewModel);
         }
 
-        // POST: Clientes/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, ClienteEditViewModel model)
+        public async Task<IActionResult> Edit(int id, ClienteViewModel model)
         {
+            if (id != model.Id) return NotFound();
+
+            // Como la contraseña es opcional en la edición, la removemos del ModelState
+            ModelState.Remove("Password");
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Mapear ClienteEditViewModel a Cliente y Usuario
                     var existingCliente = await _clienteService.GetClienteByIdAsync(id);
                     if (existingCliente == null || existingCliente.Usuario == null) return NotFound();
 
-                    // Actualizar propiedades del Usuario
                     existingCliente.Usuario.Email = model.Email;
                     existingCliente.Usuario.UserName = model.Email;
                     existingCliente.Usuario.Nombre = model.Nombre;
                     existingCliente.Usuario.Identificacion = model.Identificacion;
                     existingCliente.Usuario.FechaNacimiento = model.FechaNacimiento;
                     existingCliente.Usuario.PhoneNumber = model.Telefono;
-
-                    // Actualizar propiedades del Cliente
                     existingCliente.Direccion = model.Direccion;
 
                     var result = await _clienteService.UpdateClienteAsync(id, existingCliente);
@@ -132,13 +132,12 @@ namespace gestion_construccion.web.Controllers
                 catch (Exception ex)
                 {
                     Debug.WriteLine(ex.ToString());
-                    ModelState.AddModelError(string.Empty, $"Error inesperado: {ex.Message}. Revise la consola del servidor para más detalles.");
+                    ModelState.AddModelError(string.Empty, $"Error inesperado: {ex.Message}.");
                 }
             }
             return View(model);
         }
 
-        // GET: Clientes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -147,7 +146,6 @@ namespace gestion_construccion.web.Controllers
             return View(cliente);
         }
 
-        // POST: Clientes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -167,13 +165,12 @@ namespace gestion_construccion.web.Controllers
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.ToString());
-                ModelState.AddModelError(string.Empty, $"Error inesperado: {ex.Message}. Revise la consola del servidor para más detalles.");
+                ModelState.AddModelError(string.Empty, $"Error inesperado: {ex.Message}.");
                 var cliente = await _clienteService.GetClienteByIdAsync(id);
                 return View(cliente);
             }
         }
 
-        // GET: Clientes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();

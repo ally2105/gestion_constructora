@@ -1,38 +1,32 @@
-@model Firmeza.Core.Models.Producto
+@model gestion_construccion.web.Models.ViewModels.ProductoViewModel
 
 @{
     ViewData["Title"] = "Crear Producto";
 }
 
-<div class="card-admin">
-    <div class="card-header">Crear Nuevo Producto</div>
+<div class="card-admin card-admin-enhanced">
+    <div class="card-header card-header-enhanced">
+        <div class="header-left">
+            <i class="fas fa-plus-circle icon-header"></i>
+            <div>
+                <h2 class="title">Crear Nuevo Producto</h2>
+                <p class="subtitle">Ingrese los detalles del nuevo producto para añadirlo al inventario.</p>
+            </div>
+        </div>
+    </div>
+
     <form asp-action="Create">
-        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
-        
-        <div class="form-group-admin">
-            <label asp-for="Nombre"></label>
-            <input asp-for="Nombre" class="form-control-admin" />
-            <span asp-validation-for="Nombre" class="text-danger"></span>
+        <div class="form-content">
+            <partial name="_ProductoForm" model="Model" />
         </div>
-        <div class="form-group-admin">
-            <label asp-for="Descripcion"></label>
-            <input asp-for="Descripcion" class="form-control-admin" />
-            <span asp-validation-for="Descripcion" class="text-danger"></span>
-        </div>
-        <div class="form-group-admin">
-            <label asp-for="Precio"></label>
-            <input asp-for="Precio" class="form-control-admin" />
-            <span asp-validation-for="Precio" class="text-danger"></span>
-        </div>
-        <div class="form-group-admin">
-            <label asp-for="Stock"></label>
-            <input asp-for="Stock" class="form-control-admin" />
-            <span asp-validation-for="Stock" class="text-danger"></span>
-        </div>
-        
-        <div style="margin-top: 20px;">
-            <button type="submit" class="btn-admin">Crear</button>
-            <a asp-action="Index" class="btn-admin-secondary" style="margin-left: 10px;">Volver a la lista</a>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-admin btn-save">
+                <i class="fas fa-plus"></i> Crear Producto
+            </button>
+            <a asp-action="Index" class="btn-admin-secondary btn-cancel">
+                <i class="fas fa-times-circle"></i> Cancelar
+            </a>
         </div>
     </form>
 </div>

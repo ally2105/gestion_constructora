@@ -1,29 +1,42 @@
 @{
     ViewData["Title"] = "Importar Datos desde Excel";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<p>Seleccione un archivo Excel (.xlsx) con los datos de ventas para importar.</p>
-<p>El archivo debe tener las siguientes columnas: <strong>ClienteEmail, ClienteNombre, ProductoNombre, Cantidad, PrecioUnitario, FechaVenta</strong></p>
-
-<hr />
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-}
-
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Upload" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="file">Archivo Excel</label>
-                <input type="file" name="file" class="form-control" accept=".xlsx" />
+<div class="card-admin card-admin-enhanced">
+    <div class="card-header card-header-enhanced">
+        <div class="header-left">
+            <i class="fas fa-file-excel icon-header"></i>
+            <div>
+                <h2 class="title">Importar Datos desde Excel</h2>
+                <p class="subtitle">Cargue un archivo .xlsx para actualizar productos, clientes y ventas.</p>
             </div>
-            <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary">Subir e Importar</button>
+        </div>
+    </div>
+
+    <div class="form-content">
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="validation-summary-errors" style="margin-bottom: 20px;">
+                <ul>
+                    <li>@TempData["ErrorMessage"]</li>
+                </ul>
+            </div>
+        }
+
+        <p style="color: var(--color-text-secondary); margin-bottom: 25px;">
+            Seleccione un archivo de Excel (.xlsx) que contenga las hojas "Productos", "Clientes" y "Ventas" para importar la información.
+        </p>
+
+        <form asp-action="Upload" method="post" enctype="multipart/form-data">
+            <div class="form-group-admin">
+                <label for="file">Archivo Excel (.xlsx)</label>
+                <input type="file" name="file" id="file" class="form-control-admin" accept=".xlsx" required />
+            </div>
+            
+            <div class="form-actions" style="justify-content: flex-start;">
+                <button type="submit" class="btn-admin btn-save">
+                    <i class="fas fa-upload"></i> Iniciar Importación
+                </button>
             </div>
         </form>
     </div>

@@ -1,27 +1,32 @@
 @model Firmeza.Core.Models.Cliente
 
 @{
+    ViewData["Title"] = "Eliminar Cliente";
 }
 
-
-<h3>¿Estás seguro de que quieres eliminar este cliente?</h3>
-<div>
-    <h4>Cliente</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">Nombre</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Usuario.Nombre)</dd>
-        
-        <dt class="col-sm-2">Email</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Usuario.Email)</dd>
-
-        <dt class="col-sm-2">Dirección</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Direccion)</dd>
-    </dl>
+<div class="card-admin">
+    <div class="card-header" style="background-color: #e74c3c; color: white;">Confirmar Eliminación</div>
     
-    <form asp-action="Delete">
+    <h3 style="margin-top: 15px;">¿Estás seguro de que quieres eliminar este cliente?</h3>
+    <p style="color: var(--color-text-secondary);">Esta acción no se puede deshacer.</p>
+    
+    @if (Model != null && Model.Usuario != null)
+    {
+        <dl class="row" style="padding: 15px; background-color: var(--color-bg); border-radius: var(--radius);">
+            <dt class="col-sm-4" style="color: var(--color-text-secondary);">Nombre</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Usuario.Nombre)</dd>
+
+            <dt class="col-sm-4" style="color: var(--color-text-secondary);">Email</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Usuario.Email)</dd>
+
+            <dt class="col-sm-4" style="color: var(--color-text-secondary);">Dirección</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Direccion)</dd>
+        </dl>
+    }
+    
+    <form asp-action="Delete" style="margin-top: 20px;">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Eliminar" class="btn btn-danger" /> |
-        <a asp-action="Index">Volver a la lista</a>
+        <button type="submit" class="btn-admin-danger">Sí, Eliminar</button>
+        <a asp-action="Index" class="btn-admin-secondary" style="margin-left: 10px;">Cancelar</a>
     </form>
 </div>

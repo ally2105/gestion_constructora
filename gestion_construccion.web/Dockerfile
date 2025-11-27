@@ -1,23 +1,22 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["gestion_construccion/gestion_construccion.csproj", "gestion_construccion/"]
-RUN dotnet restore "gestion_construccion/gestion_construccion.csproj"
+COPY ["gestion_construccion.web/gestion_construccion.web.csproj", "gestion_construccion.web/"]
+COPY ["Firmeza.Core/Firmeza.Core.csproj", "Firmeza.Core/"]
+COPY ["Firmeza.Infrastructure/Firmeza.Infrastructure.csproj", "Firmeza.Infrastructure/"]
+COPY ["gestion_construcion.api/gestion_construcion.api.csproj", "gestion_construcion.api/"]
+RUN dotnet restore "gestion_construccion.web/gestion_construccion.web.csproj"
 COPY . .
-WORKDIR "/src/gestion_construccion"
-RUN dotnet build "./gestion_construccion.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/gestion_construccion.web"
+RUN dotnet build "gestion_construccion.web.csproj" -c Release -o /app/build
 
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./gestion_construccion.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "gestion_construccion.web.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "gestion_construccion.dll"]
+ENTRYPOINT ["dotnet", "gestion_construccion.web.dll"]

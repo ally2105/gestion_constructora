@@ -2,45 +2,78 @@
 
 @{
     ViewData["Title"] = "Detalles del Cliente";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="card-admin card-admin-enhanced">
+    <div class="card-header card-header-enhanced">
+        <div class="header-left">
+            <i class="fas fa-user icon-header"></i>
+            <div>
+                <h2 class="title">@Model.Usuario?.Nombre</h2>
+                <p class="subtitle">Información detallada del cliente</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="badge-id">ID: @Model.Id</span>
+        </div>
+    </div>
 
-<div>
-    <h4>Cliente</h4>
-    <hr />
-    @if (Model != null && Model.Usuario != null)
-    {
-        <dl class="row">
-            <dt class="col-sm-3">Nombre</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Usuario.Nombre)</dd>
+    <div class="form-content">
+        @if (Model != null && Model.Usuario != null)
+        {
+            <dl class="row-details">
+                <dt>Email:</dt>
+                <dd>@Html.DisplayFor(model => model.Usuario.Email)</dd>
 
-            <dt class="col-sm-3">Email</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Usuario.Email)</dd>
+                <dt>Teléfono:</dt>
+                <dd>@Html.DisplayFor(model => model.Usuario.PhoneNumber)</dd>
 
-            <dt class="col-sm-3">Teléfono</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Usuario.PhoneNumber)</dd>
+                <dt>Identificación:</dt>
+                <dd>@Html.DisplayFor(model => model.Usuario.Identificacion)</dd>
 
-            <dt class="col-sm-3">Identificación</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Usuario.Identificacion)</dd>
+                <dt>Fecha de Nacimiento:</dt>
+                <dd>@Model.Usuario.FechaNacimiento.ToShortDateString()</dd>
 
-            <dt class="col-sm-3">Fecha de Nacimiento</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Usuario.FechaNacimiento)</dd>
+                <dt>Dirección:</dt>
+                <dd>@Html.DisplayFor(model => model.Direccion)</dd>
 
-            <dt class="col-sm-3">Dirección</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Direccion)</dd>
+                <dt>Fecha de Registro:</dt>
+                <dd>@Model.FechaRegistro.ToShortDateString()</dd>
+            </dl>
+        }
+        else
+        {
+            <p style="color: var(--color-text-secondary);">No se encontraron los detalles del cliente.</p>
+        }
+    </div>
 
-            <dt class="col-sm-3">Fecha de Registro</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.FechaRegistro)</dd>
-        </dl>
-    }
-    else
-    {
-        <p>No se encontraron los detalles del cliente.</p>
-    }
+    <div class="form-actions">
+        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn-admin btn-save">
+            <i class="fas fa-edit"></i> Editar Cliente
+        </a> 
+        <a asp-action="Index" class="btn-admin-secondary btn-cancel">
+            <i class="fas fa-arrow-alt-circle-left"></i> Volver a la lista
+        </a>
+    </div>
 </div>
-<div class="mt-3">
-    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Editar</a> 
-    <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
-</div>
+
+<style>
+    .row-details {
+        display: grid;
+        grid-template-columns: 150px 1fr; /* Ancho fijo para dt, el resto para dd */
+        gap: 10px 20px;
+        margin-top: 20px;
+        padding: 15px;
+        background-color: var(--color-bg);
+        border-radius: var(--radius);
+        border: 1px solid var(--color-border);
+    }
+    .row-details dt {
+        color: var(--color-text-secondary);
+        font-weight: 600;
+    }
+    .row-details dd {
+        margin-left: 0;
+        color: var(--color-text-main);
+    }
+</style>

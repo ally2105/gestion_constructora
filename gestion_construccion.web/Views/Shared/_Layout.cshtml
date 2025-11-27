@@ -1,54 +1,64 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - Firmaza Admin</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>@ViewData["Title"] - Firmaza Admin</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40JuKAKcWhxhYFEjNG/QJzrmt/KTQoHVMOeN/R/Scpg/OfVz3EGFEKyWqLzT+M/W+f/V5+w5w5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-    <header>
-        <nav class="navbar-admin">
-            <a class="logo" asp-area="" asp-controller="Home" asp-action="Index">Firmaza Admin</a>
-            <ul class="nav-menu">
-                @if (User.Identity.IsAuthenticated)
-                {
-                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
-                    <li><a asp-area="" asp-controller="Productos" asp-action="Index">Productos</a></li>
-                    <li><a asp-area="" asp-controller="Clientes" asp-action="Index">Clientes</a></li>
-                    <li><a asp-area="" asp-controller="Ventas" asp-action="Index">Ventas</a></li>
-                    <li class="user-info">Hola, @User.Identity.Name</li>
-                    <li>
-                        <form asp-area="" asp-controller="Usuarios" asp-action="Logout" method="post">
-                            <button type="submit" class="btn-logout">Cerrar Sesión</button>
-                        </form>
-                    </li>
-                }
-                else
-                {
-                    <li><a asp-area="" asp-controller="Usuarios" asp-action="Login">Iniciar Sesión</a></li>
-                    <li><a asp-area="" asp-controller="Usuarios" asp-action="Register">Registrarse</a></li>
-                }
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <nav class="navbar-admin" role="navigation" aria-label="Main admin navigation">
+      <div class="brand">
+        <a asp-area="" asp-controller="Admin" asp-action="Dashboard" class="logo" aria-label="Firmaza home">F</a>
+        <div class="title">Firmaza Admin</div>
+      </div>
 
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="navMenu" id="navToggle">
+        ☰
+        <span class="sr-only">Abrir menú</span>
+      </button>
 
-    <footer class="border-top footer text-muted" style="color: var(--color-text-secondary); text-align: center; padding: 20px; margin-top: 40px; border-color: var(--color-border) !important;">
-        <div class="container">
-            &copy; 2025 - Firmaza Admin
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+      <ul class="nav-menu" id="navMenu">
+        <li><a asp-area="" asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
+        <li><a asp-controller="Productos" asp-action="Index">Productos</a></li>
+        <li><a asp-controller="Clientes" asp-action="Index">Clientes</a></li>
+        <li><a asp-controller="Ventas" asp-action="Index">Ventas</a></li>
+        <li><a asp-controller="Import" asp-action="Index">Importar</a></li>
+      </ul>
+
+      <div class="user-actions">
+        @if (User.Identity?.IsAuthenticated ?? false) {
+          <div class="user-badge" title="@User.Identity.Name">@User.Identity.Name</div>
+          <form asp-controller="Usuarios" asp-action="Logout" method="post" style="display:inline;">
+            <button type="submit" class="btn-logout">Cerrar Sesión</button>
+          </form>
+        } else {
+          <a asp-controller="Usuarios" asp-action="Login" class="btn-login-ghost" style="color:var(--color-text-main); border: 1px solid var(--color-border); padding:8px 12px; border-radius:8px;">Iniciar sesión</a>
+        }
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <main role="main" class="pb-3">
+      @RenderBody()
+    </main>
+  </div>
+
+  <footer style="color:var(--color-text-secondary); text-align:center; padding:20px; margin-top:40px; border-top:1px solid var(--color-border);">
+    &copy; @DateTime.Now.Year - Firmaza Admin
+  </footer>
+
+  <script src="~/lib/jquery/dist/jquery.min.js"></script>
+  <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+  <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+  <script src="~/js/site.js" asp-append-version="true"></script>
+  @await RenderSectionAsync("Scripts", required:false)
 </body>
 </html>

@@ -4,46 +4,61 @@
     ViewData["Title"] = "Crear Nueva Venta";
 }
 
-<div class="card-admin">
-    <div class="card-header">Crear Nueva Venta</div>
+<div class="card-admin card-admin-enhanced">
+    <div class="card-header card-header-enhanced">
+        <div class="header-left">
+            <i class="fas fa-shopping-cart icon-header"></i>
+            <div>
+                <h2 class="title">Crear Nueva Venta</h2>
+                <p class="subtitle">Registre una nueva transacción de venta en el sistema.</p>
+            </div>
+        </div>
+    </div>
+
     <form asp-action="Create">
-        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+        <div asp-validation-summary="All" class="validation-summary-errors"></div>
 
-        <h4 style="color: var(--color-primary); margin-top: 15px; margin-bottom: 20px;">Detalles de la Venta</h4>
-        
-        <div class="form-group-admin">
-            <label asp-for="ClienteId"></label>
-            <select asp-for="ClienteId" class="form-control-admin" asp-items="ViewBag.ClienteId">
-                <option value="">-- Seleccione un Cliente --</option>
-            </select>
-            <span asp-validation-for="ClienteId" class="text-danger"></span>
+        <div class="form-content">
+            <h4 style="color: var(--color-primary); margin-top: 15px; margin-bottom: 20px;">Detalles de la Venta</h4>
+            
+            <div class="form-group-admin">
+                <label asp-for="ClienteId"></label>
+                <select asp-for="ClienteId" class="form-control-admin" asp-items="ViewBag.ClienteId">
+                    <option value="">-- Seleccione un Cliente --</option>
+                </select>
+                <span asp-validation-for="ClienteId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-admin">
+                <label asp-for="FechaVenta"></label>
+                <input asp-for="FechaVenta" class="form-control-admin" type="datetime-local" />
+                <span asp-validation-for="FechaVenta" class="text-danger"></span>
+            </div>
+
+            <h4 style="color: var(--color-primary); margin-top: 30px; margin-bottom: 20px;">Productos de la Venta</h4>
+            
+            <div class="form-group-admin">
+                <label asp-for="ProductoId"></label>
+                <select asp-for="ProductoId" class="form-control-admin" asp-items="ViewBag.ProductoId">
+                    <option value="">-- Seleccione un Producto --</option>
+                </select>
+                <span asp-validation-for="ProductoId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-admin">
+                <label asp-for="Cantidad"></label>
+                <input asp-for="Cantidad" class="form-control-admin" type="number" min="1" />
+                <span asp-validation-for="Cantidad" class="text-danger"></span>
+            </div>
         </div>
 
-        <div class="form-group-admin">
-            <label asp-for="FechaVenta"></label>
-            <input asp-for="FechaVenta" class="form-control-admin" type="datetime-local" />
-            <span asp-validation-for="FechaVenta" class="text-danger"></span>
-        </div>
-
-        <h4 style="color: var(--color-primary); margin-top: 30px; margin-bottom: 20px;">Productos de la Venta</h4>
-        
-        <div class="form-group-admin">
-            <label asp-for="ProductoId"></label>
-            <select asp-for="ProductoId" class="form-control-admin" asp-items="ViewBag.ProductoId">
-                <option value="">-- Seleccione un Producto --</option>
-            </select>
-            <span asp-validation-for="ProductoId" class="text-danger"></span>
-        </div>
-
-        <div class="form-group-admin">
-            <label asp-for="Cantidad"></label>
-            <input asp-for="Cantidad" class="form-control-admin" type="number" min="1" />
-            <span asp-validation-for="Cantidad" class="text-danger"></span>
-        </div>
-
-        <div style="margin-top: 20px;">
-            <button type="submit" class="btn-admin">Crear Venta</button>
-            <a asp-action="Index" class="btn-admin-secondary" style="margin-left: 10px;">Volver a la lista</a>
+        <div class="form-actions">
+            <button type="submit" class="btn-admin btn-save">
+                <i class="fas fa-cash-register"></i> Crear Venta
+            </button>
+            <a asp-action="Index" class="btn-admin-secondary btn-cancel">
+                <i class="fas fa-times-circle"></i> Cancelar
+            </a>
         </div>
     </form>
 </div>

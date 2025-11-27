@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
-using Firmeza.Core.Validation; // Actualizado
+using Firmeza.Core.Validation;
 
 namespace gestion_construccion.web.Models.ViewModels
 {
     public class ClienteViewModel
     {
-        // Propiedades del Usuario
+        public int Id { get; set; } // ID del cliente, necesario para la edición
+
         [Required]
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
@@ -17,18 +18,17 @@ namespace gestion_construccion.web.Models.ViewModels
         public string Identificacion { get; set; } = string.Empty;
 
         [DataType(DataType.Date)]
-        [MinimumAge(18)] // <-- ATRIBUTO AÑADIDO
+        [MinimumAge(18)]
         public DateTime FechaNacimiento { get; set; }
 
-        [Required]
+        // La contraseña solo es requerida para la creación, no para la edición.
+        // Para manejar esto, podemos hacerla opcional y validarla en el controlador si es necesario.
         [StringLength(100, MinimumLength = 6)]
         [DataType(DataType.Password)]
-        public string Password { get; set; } = string.Empty;
+        public string? Password { get; set; }
 
-        // Propiedades del Cliente
         public string? Direccion { get; set; }
 
-        // Propiedad de Teléfono añadida
         [Phone]
         [Display(Name = "Teléfono")]
         public string? Telefono { get; set; }

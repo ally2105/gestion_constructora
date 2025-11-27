@@ -4,22 +4,26 @@
     ViewData["Title"] = "Eliminar Producto";
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<h3>¿Estás seguro de que quieres eliminar esto?</h3>
-<div>
-    <h4>Producto</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Nombre)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Nombre)</dd>
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Precio)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Precio)</dd>
-    </dl>
+<div class="card-admin">
+    <div class="card-header" style="background-color: #e74c3c; color: white;">Confirmar Eliminación</div>
     
-    <form asp-action="Delete">
+    <h3 style="margin-top: 15px;">¿Estás seguro de que quieres eliminar este producto?</h3>
+    <p style="color: var(--color-text-secondary);">Esta acción no se puede deshacer.</p>
+    
+    @if (Model != null)
+    {
+        <dl class="row" style="padding: 15px; background-color: var(--color-bg); border-radius: var(--radius);">
+            <dt class="col-sm-4" style="color: var(--color-text-secondary);">Nombre</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Nombre)</dd>
+
+            <dt class="col-sm-4" style="color: var(--color-text-secondary);">Precio</dt>
+            <dd class="col-sm-8" style="color: var(--color-price);">@Model.Precio.ToString("C")</dd>
+        </dl>
+    }
+    
+    <form asp-action="Delete" style="margin-top: 20px;">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Eliminar" class="btn btn-danger" /> |
-        <a asp-action="Index">Volver a la lista</a>
+        <button type="submit" class="btn-admin-danger">Sí, Eliminar</button>
+        <a asp-action="Index" class="btn-admin-secondary" style="margin-left: 10px;">Cancelar</a>
     </form>
 </div>

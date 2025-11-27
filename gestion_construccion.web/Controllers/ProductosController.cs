@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Firmeza.Core.Models; // Actualizado
-using Firmeza.Core.Interfaces; // Actualizado
-using Microsoft.EntityFrameworkCore; // <-- AÑADIDO
+using Firmeza.Core.Models;
+using Firmeza.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using gestion_construccion.web.Models.ViewModels;
 
 namespace gestion_construccion.web.Controllers
 {
@@ -17,73 +18,84 @@ namespace gestion_construccion.web.Controllers
             _productoService = productoService;
         }
 
-        // GET: Productos
         public async Task<IActionResult> Index(string searchTerm)
         {
             var productos = await _productoService.SearchProductosAsync(searchTerm);
             return View(productos);
         }
 
-        // GET: Productos/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new ProductoViewModel());
         }
 
-        // POST: Productos/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Nombre,Descripcion,Precio,Stock")] Producto producto)
+        public async Task<IActionResult> Create(ProductoViewModel model)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var producto = new Producto
+                    {
+                        Nombre = model.Nombre,
+                        Descripcion = model.Descripcion,
+                        Precio = model.Precio,
+                        Stock = model.Stock
+                    };
                     await _productoService.AddProductoAsync(producto);
                     return RedirectToAction(nameof(Index));
-                }
-                catch (ApplicationException ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
                 }
                 catch (Exception)
                 {
                     ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado al crear el producto.");
                 }
             }
-            return View(producto);
+            return View(model);
         }
 
-        // GET: Productos/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
             var producto = await _productoService.GetProductoByIdAsync(id.Value);
             if (producto == null) return NotFound();
-            return View(producto);
+
+            var viewModel = new ProductoViewModel
+            {
+                Id = producto.Id,
+                Nombre = producto.Nombre,
+                Descripcion = producto.Descripcion,
+                Precio = producto.Precio,
+                Stock = producto.Stock
+            };
+            return View(viewModel);
         }
 
-        // POST: Productos/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Descripcion,Precio,Stock")] Producto producto)
+        public async Task<IActionResult> Edit(int id, ProductoViewModel model)
         {
-            if (id != producto.Id) return NotFound();
+            if (id != model.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var producto = await _productoService.GetProductoByIdAsync(id);
+                    if (producto == null) return NotFound();
+
+                    producto.Nombre = model.Nombre;
+                    producto.Descripcion = model.Descripcion;
+                    producto.Precio = model.Precio;
+                    producto.Stock = model.Stock;
+
                     await _productoService.UpdateProductoAsync(producto);
                     return RedirectToAction(nameof(Index));
                 }
-                catch (ApplicationException ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (await _productoService.GetProductoByIdAsync(producto.Id) == null)
+                    if (await _productoService.GetProductoByIdAsync(model.Id) == null)
                     {
                         return NotFound();
                     }
@@ -97,10 +109,9 @@ namespace gestion_construccion.web.Controllers
                     ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado al actualizar el producto.");
                 }
             }
-            return View(producto);
+            return View(model);
         }
 
-        // GET: Productos/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -109,32 +120,14 @@ namespace gestion_construccion.web.Controllers
             return View(producto);
         }
 
-        // POST: Productos/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                var result = await _productoService.DeleteProductoAsync(id);
-                if (!result) return NotFound();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (ApplicationException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                var producto = await _productoService.GetProductoByIdAsync(id);
-                return View(producto); // Volver a la vista de eliminación con el error
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado al eliminar el producto.");
-                var producto = await _productoService.GetProductoByIdAsync(id);
-                return View(producto); // Volver a la vista de eliminación con el error
-            }
+            await _productoService.DeleteProductoAsync(id);
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Productos/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();

@@ -4,39 +4,62 @@
     ViewData["Title"] = "Gestión de Ventas";
 }
 
-<div class="card-admin">
-    <div class="card-header">Gestión de Ventas</div>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <a asp-action="Create" class="btn-admin">Crear Nueva Venta</a>
+<div class="card-admin card-admin-enhanced">
+    <div class="card-header card-header-enhanced">
+        <div class="header-left">
+            <i class="fas fa-shopping-bag icon-header"></i>
+            <div>
+                <h2 class="title">Gestión de Ventas</h2>
+                <p class="subtitle">Administre todas las transacciones de ventas realizadas en el sistema.</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <a asp-action="Create" class="btn-admin btn-save">
+                <i class="fas fa-plus-circle"></i> Crear Nueva Venta
+            </a>
+        </div>
     </div>
 
-    <table class="table-admin">
-        <thead>
-            <tr>
-                <th>ID Venta</th>
-                <th>Cliente</th>
-                <th>Fecha</th>
-                <th>Total</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.Id</td>
-                    <td>@item.Cliente?.Usuario?.Nombre</td>
-                    <td>@item.Fecha.ToShortDateString()</td>
-                    <td style="color: var(--color-price);">@item.Total.ToString("C")</td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-admin-secondary btn-sm">Detalles</a>
-                        @if (!string.IsNullOrEmpty(item.ReciboPdfPath))
-                        {
-                            <a href="@item.ReciboPdfPath" target="_blank" class="btn-admin-secondary btn-sm" style="margin-left: 5px;">Descargar PDF</a>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="form-content">
+        @if (!Model.Any())
+        {
+            <p style="color: var(--color-text-secondary); text-align: center; margin-top: 20px;">No hay ventas registradas.</p>
+        }
+        else
+        {
+            <table class="table-admin">
+                <thead>
+                    <tr>
+                        <th>ID Venta</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Cliente?.Usuario?.Nombre</td>
+                            <td>@item.Fecha.ToShortDateString()</td>
+                            <td style="color: var(--color-price);">@item.Total.ToString("C")</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn-admin-secondary btn-sm" title="Ver Detalles">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                @if (!string.IsNullOrEmpty(item.ReciboPdfPath))
+                                {
+                                    <a href="@item.ReciboPdfPath" target="_blank" class="btn-admin-secondary btn-sm" style="margin-left: 5px;" title="Descargar PDF">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
 </div>
