@@ -1,50 +1,73 @@
-<<<<<<< HEAD
-bin/
-obj/
-/packages/
-riderModule.iml
-/_ReSharper.Caches/
-=======
-# --- .NET ---
+# ================================
+# .NET / Visual Studio
+# ================================
 bin/
 obj/
 *.user
 *.suo
 *.cache
-*.log
 *.db
 *.db-shm
 *.db-wal
 *.sqlite
-/*.nupkg
+*.log
+
+# Visual Studio working dir
 /.vs/
 
-# --- NuGet packages ---
+# NuGet artifacts
 /packages/
+*.nupkg
 
-# --- Rider / ReSharper ---
-riderModule.iml
+# ================================
+# JetBrains Rider / ReSharper
+# ================================
 /_ReSharper.Caches/
+riderModule.iml
 
-# --- NPM / Vite ---
+# ================================
+# FRONTEND (React / Vite)
+# ================================
+**/node_modules/
+**/dist/
+**/.vite/
+**/.turbo/
+**/.parcel-cache/
+**/.next/
+**/.npm/
+**/.yarn/
+**/.pnpm-store/
+
+# (Opcional si usas Firmeza.Client specifically)
 Firmeza.Client/node_modules/
 Firmeza.Client/dist/
 Firmeza.Client/.vite/
 
-# --- Environment ---
+# ================================
+# Environment files
+# ================================
 *.env
-*.env.local
-*.env.development
-*.env.production
+*.env.*          # .env.local, .env.development, etc.
 
-# --- Logs ---
-*.log
+# ================================
+# Logs
+# ================================
 logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# --- System ---
+# ================================
+# Docker
+# ================================
+docker-compose.override.yml
+**/.dockerignore
+**/Dockerfile.*
+**/docker/*.log
+
+# ================================
+# System files
+# ================================
 .DS_Store
 Thumbs.db
->>>>>>> develop
