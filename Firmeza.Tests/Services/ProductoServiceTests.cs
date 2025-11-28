@@ -11,17 +11,11 @@ namespace Firmeza.Tests.Services
 
             // Configurar el mock para simular un IQueryable que soporta operaciones asíncronas
             var mockDbSet = new Mock<DbSet<Producto>>();
-            mockDbSet.As<IAsyncEnumerable<Producto>>()
-                     .Setup(x => x.GetAsyncEnumerator(It.IsAny<CancellationToken>()))
-                     .Returns(new TestAsyncEnumerable<Producto>(testProducts.GetEnumerator())); // Corregido aquí
-
-            mockDbSet.As<IQueryable<Producto>>()
-                     .Setup(x => x.Provider)
-                     .Returns(new TestAsyncQueryProvider<Producto>(testProducts.AsQueryable().Provider));
-
-            mockDbSet.As<IQueryable<Producto>>().Setup(x => x.Expression).Returns(testProducts.AsQueryable().Expression);
-            mockDbSet.As<IQueryable<Producto>>().Setup(x => x.ElementType).Returns(testProducts.AsQueryable().ElementType);
-            mockDbSet.As<IQueryable<Producto>>().Setup(x => x.GetEnumerator()).Returns(testProducts.GetEnumerator());
+            mockDbSet.As<IQueryable<Producto>>().Setup(m => m.Provider).Returns(new TestAsyncQueryProvider<Producto>(testProducts.AsQueryable().Provider));
+            mockDbSet.As<IQueryable<Producto>>().Setup(m => m.Expression).Returns(testProducts.AsQueryable().Expression);
+            mockDbSet.As<IQueryable<Producto>>().Setup(m => m.ElementType).Returns(testProducts.AsQueryable().ElementType);
+            mockDbSet.As<IQueryable<Producto>>().Setup(m => m.GetEnumerator()).Returns(() => testProducts.GetEnumerator());
+            mockDbSet.As<IAsyncEnumerable<Producto>>().Setup(d => d.GetAsyncEnumerator(It.IsAny<CancellationToken>())).Returns(new TestAsyncEnumerator<Producto>(this.GetTestProducts().GetEnumerator()));
 
             mockProductRepository.Setup(repo => repo.GetQuery()).Returns(mockDbSet.Object);
 
@@ -76,84 +70,41 @@ namespace Firmeza.Tests.Services
 
     // Clases auxiliares para simular IAsyncEnumerable y IAsyncQueryProvider
     // Necesarias para que los métodos asíncronos de EF Core funcionen con IQueryable en memoria
-    public class TestAsyncEnumerable<T> : IAsyncEnumerable<T>, IEnumerable<T>
+    public class TestAsyncEnumerable<T> : EnumerableQuery<T>, IAsyncEnumerable<T>
     {
-        private readonly IEnumerator<T> _enumerator;
-
-        public TestAsyncEnumerable(IEnumerator<T> enumerator)
-        {
-            _enumerator = enumerator;
-        }
-
-        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-        {
-            return new TestAsyncEnumeratorInner<T>(_enumerator);
-        }
-
-        public IEnumerator<T> GetEnumerator() => _enumerator;
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        public TestAsyncEnumerable(IEnumerable<T> enumerable) : base(enumerable) { }
+        public TestAsyncEnumerable(Expression expression) : base(expression) { }
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default) => new TestAsyncEnumerator<T>(this.AsEnumerable().GetEnumerator());
     }
 
-    public class TestAsyncEnumeratorInner<T> : IAsyncEnumerator<T>
+    public class TestAsyncEnumerator<T> : IAsyncEnumerator<T>
     {
         private readonly IEnumerator<T> _enumerator;
-
-        public TestAsyncEnumeratorInner(IEnumerator<T> enumerator)
-        {
-            _enumerator = enumerator;
-        }
-
         public T Current => _enumerator.Current;
-
-        public ValueTask DisposeAsync()
-        {
-            _enumerator.Dispose();
-            return ValueTask.CompletedTask;
-        }
-
-        public ValueTask<bool> MoveNextAsync()
-        {
-            return new ValueTask<bool>(_enumerator.MoveNext());
-        }
+        public TestAsyncEnumerator(IEnumerator<T> enumerator) => _enumerator = enumerator;
+        public ValueTask<bool> MoveNextAsync() => new ValueTask<bool>(_enumerator.MoveNext());
+        public ValueTask DisposeAsync() => new ValueTask(Task.CompletedTask);
     }
 
     public class TestAsyncQueryProvider<TEntity> : IAsyncQueryProvider
     {
         private readonly IQueryProvider _inner;
-
-        internal TestAsyncQueryProvider(IQueryProvider inner)
+        internal TestAsyncQueryProvider(IQueryProvider inner) => _inner = inner;
+        public IQueryable CreateQuery(Expression expression) => new TestAsyncEnumerable<TEntity>(expression);
+        public IQueryable<TElement> CreateQuery<TElement>(Expression expression) => new TestAsyncEnumerable<TElement>(expression);
+        public object Execute(Expression expression) => _inner.Execute(expression);
+        public TResult Execute<TResult>(Expression expression) => _inner.Execute<TResult>(expression);
+        public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
-            _inner = inner;
-        }
-
-        public IQueryable CreateQuery(Expression expression)
-        {
-            return _inner.CreateQuery(expression);
-        }
-
-        public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
-        {
-            return _inner.CreateQuery<TElement>(expression);
-        }
-
-        public object? Execute(Expression expression)
-        {
-            return _inner.Execute(expression);
-        }
-
-        public TResult Execute<TResult>(Expression expression)
-        {
-            return _inner.Execute<TResult>(expression);
-        }
-
-        public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
-        {
-            var expectedResultType = typeof(TResult).GetGenericArguments()[0];
-            var enumerationResult = Execute(expression);
-
-            return (TResult)(typeof(Task).GetMethod(nameof(Task.FromResult))
-                ?.MakeGenericMethod(expectedResultType)
-                .Invoke(null, new[] { enumerationResult }) ?? throw new InvalidOperationException("Failed to create Task.FromResult"));
+            var result = Execute(expression);
+            // Manejar la conversión de forma segura
+            if (typeof(TResult).IsGenericType && typeof(TResult).GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                var innerResultType = typeof(TResult).GetGenericArguments()[0];
+                var taskFromResultMethod = typeof(Task).GetMethod(nameof(Task.FromResult))?.MakeGenericMethod(innerResultType);
+                return (TResult)(taskFromResultMethod?.Invoke(null, new[] { result }) ?? throw new InvalidOperationException("Failed to create Task.FromResult"));
+            }
+            return (TResult)result;
         }
     }
 }

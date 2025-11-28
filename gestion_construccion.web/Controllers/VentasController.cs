@@ -34,10 +34,11 @@ namespace gestion_construccion.web.Controllers
         }
 
         // GET: Ventas/Create
+        // GET: Ventas/Create
         public async Task<IActionResult> Create()
         {
             await PopulateDropdowns();
-            return View();
+            return View(new VentaViewModel());
         }
 
         // POST: Ventas/Create

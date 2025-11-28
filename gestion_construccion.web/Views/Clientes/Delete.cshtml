@@ -4,29 +4,64 @@
     ViewData["Title"] = "Eliminar Cliente";
 }
 
-<div class="card-admin">
-    <div class="card-header" style="background-color: #e74c3c; color: white;">Confirmar Eliminación</div>
-    
-    <h3 style="margin-top: 15px;">¿Estás seguro de que quieres eliminar este cliente?</h3>
-    <p style="color: var(--color-text-secondary);">Esta acción no se puede deshacer.</p>
-    
-    @if (Model != null && Model.Usuario != null)
-    {
-        <dl class="row" style="padding: 15px; background-color: var(--color-bg); border-radius: var(--radius);">
-            <dt class="col-sm-4" style="color: var(--color-text-secondary);">Nombre</dt>
-            <dd class="col-sm-8">@Html.DisplayFor(model => model.Usuario.Nombre)</dd>
+<div class="card-admin card-admin-enhanced" style="border-top-color: var(--color-danger);">
+    <div class="card-header card-header-enhanced" style="background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(231, 76, 60, 0.05));">
+        <div class="header-left">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-header" style="color: var(--color-danger);">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <div>
+                <h2 class="title" style="color: var(--color-danger);">Confirmar Eliminación</h2>
+                <p class="subtitle">Esta acción no se puede deshacer</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="badge-id" style="background: rgba(231, 76, 60, 0.1); border-color: var(--color-danger); color: var(--color-danger);">ID: @Model.Id</span>
+        </div>
+    </div>
 
-            <dt class="col-sm-4" style="color: var(--color-text-secondary);">Email</dt>
-            <dd class="col-sm-8">@Html.DisplayFor(model => model.Usuario.Email)</dd>
+    <div class="form-content">
+        <h3 style="color: var(--color-text-main); margin-bottom: 16px;">¿Estás seguro de que quieres eliminar este cliente?</h3>
+        
+        @if (Model != null && Model.Usuario != null)
+        {
+            <dl class="row-details">
+                <dt>Nombre:</dt>
+                <dd>@Html.DisplayFor(model => model.Usuario.Nombre)</dd>
 
-            <dt class="col-sm-4" style="color: var(--color-text-secondary);">Dirección</dt>
-            <dd class="col-sm-8">@Html.DisplayFor(model => model.Direccion)</dd>
-        </dl>
-    }
-    
-    <form asp-action="Delete" style="margin-top: 20px;">
+                <dt>Email:</dt>
+                <dd>@Html.DisplayFor(model => model.Usuario.Email)</dd>
+
+                <dt>Dirección:</dt>
+                <dd>@Html.DisplayFor(model => model.Direccion)</dd>
+
+                <dt>Fecha de Registro:</dt>
+                <dd>@Model.FechaRegistro.ToShortDateString()</dd>
+            </dl>
+        }
+    </div>
+
+    <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn-admin-danger">Sí, Eliminar</button>
-        <a asp-action="Index" class="btn-admin-secondary" style="margin-left: 10px;">Cancelar</a>
+        <div class="form-actions">
+            <button type="submit" class="btn-admin-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                Sí, Eliminar Cliente
+            </button>
+            <a asp-action="Index" class="btn-admin-secondary btn-cancel">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                Cancelar
+            </a>
+        </div>
     </form>
 </div>

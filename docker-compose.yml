@@ -23,7 +23,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d gestion_construccion"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d gestion_construccion" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -49,6 +49,11 @@ services:
       - Jwt__Issuer=FirmezaAPI
       - Jwt__Audience=FirmezaClientes
       - Jwt__ExpireDays=1
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     depends_on:
       db:
         condition: service_healthy

@@ -7,7 +7,12 @@
 <div class="card-admin card-admin-enhanced">
     <div class="card-header card-header-enhanced">
         <div class="header-left">
-            <i class="fas fa-users icon-header"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-header">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
             <div>
                 <h2 class="title">Gestión de Clientes</h2>
                 <p class="subtitle">Administre la información de todos los clientes registrados.</p>
@@ -15,7 +20,13 @@
         </div>
         <div class="header-right">
             <a asp-action="Create" class="btn-admin btn-save">
-                <i class="fas fa-user-plus"></i> Crear Nuevo Cliente
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                Crear Nuevo Cliente
             </a>
         </div>
     </div>
@@ -25,14 +36,36 @@
             <form asp-action="Index" method="get" class="d-flex">
                 <input type="text" name="searchTerm" class="form-control-admin" placeholder="Buscar por nombre o documento..." style="margin-right: 10px;"/>
                 <button type="submit" class="btn-admin-secondary">
-                    <i class="fas fa-search"></i> Buscar
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    Buscar
                 </button>
             </form>
         </div>
 
         @if (!Model.Any())
         {
-            <p style="color: var(--color-text-secondary); text-align: center; margin-top: 20px;">No hay clientes registrados.</p>
+            <div style="text-align: center; padding: 60px 20px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-secondary); opacity: 0.3; margin-bottom: 24px;">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <h3 style="color: var(--color-text-main); margin-bottom: 12px; font-size: 1.5rem;">No hay clientes registrados</h3>
+                <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Comienza agregando tu primer cliente al sistema</p>
+                <a asp-action="Create" class="btn-admin btn-save">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                    Crear Primer Cliente
+                </a>
+            </div>
         }
         else
         {
@@ -43,27 +76,54 @@
                         <th>Email</th>
                         <th>Dirección</th>
                         <th>Fecha de Registro</th>
-                        <th>Acciones</th>
+                        <th style="text-align: center;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>@Html.DisplayFor(modelItem => item.Usuario.Nombre)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Usuario.Email)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Direccion)</td>
-                            <td>@Html.DisplayFor(modelItem => item.FechaRegistro)</td>
                             <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn-admin-secondary btn-sm" title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn-admin-secondary btn-sm" style="margin-left: 5px;" title="Detalles">
-                                    <i class="fas fa-info-circle"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn-admin-danger btn-sm" style="margin-left: 5px;" title="Eliminar">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
+                                <strong style="color: var(--color-text-main);">@item.Usuario.Nombre</strong>
+                            </td>
+                            <td>
+                                <span style="color: var(--color-text-secondary); font-size: 0.9rem;">@item.Usuario.Email</span>
+                            </td>
+                            <td>
+                                <span style="color: var(--color-text-secondary); font-size: 0.9rem;">
+                                    @(item.Direccion?.Length > 40 ? item.Direccion.Substring(0, 40) + "..." : item.Direccion)
+                                </span>
+                            </td>
+                            <td>
+                                <span style="color: var(--color-text-secondary);">@item.FechaRegistro.ToShortDateString()</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <div style="display: inline-flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn-admin-secondary btn-sm" title="Editar cliente">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                        Editar
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn-admin-secondary btn-sm" title="Ver detalles">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                        </svg>
+                                        Detalles
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn-admin-danger btn-sm" title="Eliminar cliente">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                        </svg>
+                                        Eliminar
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     }
