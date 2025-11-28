@@ -4,8 +4,8 @@ using Firmeza.Core.Interfaces;
 using Firmeza.Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging; // Añadido
-using System; // Añadido para ApplicationException
+using Microsoft.Extensions.Logging; // Added
+using System; // Added for ApplicationException
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -18,13 +18,13 @@ namespace Firmeza.Api.Controllers
     {
         private readonly IClienteService _clienteService;
         private readonly IMapper _mapper;
-        private readonly ILogger<ClientesController> _logger; // Añadido
+        private readonly ILogger<ClientesController> _logger; // Added
 
-        public ClientesController(IClienteService clienteService, IMapper mapper, ILogger<ClientesController> logger) // Añadido logger
+        public ClientesController(IClienteService clienteService, IMapper mapper, ILogger<ClientesController> logger) // Added logger
         {
             _clienteService = clienteService;
             _mapper = mapper;
-            _logger = logger; // Asignado
+            _logger = logger; // Assigned
         }
 
         // GET: /api/Clientes
@@ -53,7 +53,7 @@ namespace Firmeza.Api.Controllers
 
         // POST: /api/Clientes
         [HttpPost]
-        [AllowAnonymous] // Permitir que cualquiera se registre
+        [AllowAnonymous] // Allow anyone to register
         public async Task<ActionResult<ClienteDto>> CreateCliente([FromBody] ClienteCreateDto clienteCreateDto)
         {
             try
@@ -69,13 +69,13 @@ namespace Firmeza.Api.Controllers
             }
             catch (ApplicationException ex)
             {
-                _logger.LogWarning(ex, "Error de aplicación al crear cliente: {Message}", ex.Message);
+                _logger.LogWarning(ex, "Application error creating client: {Message}", ex.Message);
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error inesperado al crear cliente.");
-                return StatusCode(500, new { message = "Error interno del servidor al crear el cliente." });
+                _logger.LogError(ex, "Unexpected error creating client.");
+                return StatusCode(500, new { message = "Internal server error creating client." });
             }
         }
 
@@ -101,13 +101,13 @@ namespace Firmeza.Api.Controllers
             }
             catch (ApplicationException ex)
             {
-                _logger.LogWarning(ex, "Error de aplicación al actualizar cliente: {Message}", ex.Message);
+                _logger.LogWarning(ex, "Application error updating client: {Message}", ex.Message);
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error inesperado al actualizar cliente.");
-                return StatusCode(500, new { message = "Error interno del servidor al actualizar el cliente." });
+                _logger.LogError(ex, "Unexpected error updating client.");
+                return StatusCode(500, new { message = "Internal server error updating client." });
             }
         }
 
@@ -127,13 +127,13 @@ namespace Firmeza.Api.Controllers
             }
             catch (ApplicationException ex)
             {
-                _logger.LogWarning(ex, "Error de aplicación al eliminar cliente: {Message}", ex.Message);
+                _logger.LogWarning(ex, "Application error deleting client: {Message}", ex.Message);
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error inesperado al eliminar cliente.");
-                return StatusCode(500, new { message = "Error interno del servidor al eliminar el cliente." });
+                _logger.LogError(ex, "Unexpected error deleting client.");
+                return StatusCode(500, new { message = "Internal server error deleting client." });
             }
         }
     }

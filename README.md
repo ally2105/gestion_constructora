@@ -154,10 +154,10 @@ Si prefieres ejecutar los servicios localmente sin Docker, sigue estos pasos.
 
 ### Configuración
 
-1. **Base de Datos:**
-   - Asegúrate de que tu servidor PostgreSQL esté en ejecución
-   - Crea una base de datos llamada `gestion_constructora`
-   - En los archivos `appsettings.json` de `gestion_construcion.api` y `gestion_construccion.web`, verifica que la cadena de conexión `DefaultConnection` apunte a tu instancia de PostgreSQL:
+1. **Base de Datos (Clever Cloud PostgreSQL):**
+   - El proyecto está configurado para usar una base de datos PostgreSQL alojada en Clever Cloud.
+   - Las credenciales ya están configuradas en los archivos `appsettings.json` y `appsettings.Development.json`.
+   - Si deseas usar una base de datos local, actualiza la cadena de conexión `DefaultConnection` en los archivos de configuración:
      ```json
      "ConnectionStrings": {
        "DefaultConnection": "Host=localhost;Database=gestion_constructora;Username=tu_usuario;Password=tu_contraseña"

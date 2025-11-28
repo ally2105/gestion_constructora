@@ -1,0 +1,65 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: gestion_construcion.api/Dockerfile
+    ports:
+      - "5165:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Conexión a Clever Cloud
+      - ConnectionStrings__DefaultConnection=Host=bdhsdf1lbborwhlfuy3f-postgresql.services.clever-cloud.com;Port=50013;Database=bdhsdf1lbborwhlfuy3f;Username=uhsm2ac08esf4xlemhov;Password=HrUhHJz0xvZvLPhUFztaWRT7PVW42E;SSL Mode=Require;Trust Server Certificate=true
+      - SmtpSettings__Server=smtp.gmail.com
+      - SmtpSettings__Port=587
+      - SmtpSettings__SenderName="Firmeza Construcción"
+      - SmtpSettings__SenderEmail=allisonpauleth13@gmail.com
+      - SmtpSettings__Username=allisonpauleth13@gmail.com
+      - SmtpSettings__Password=qtqciitocmhgncmx
+      - Jwt__Key=ESTA_ES_MI_CLAVE_SECRETA_SUPER_LARGA_Y_COMPLEJA_PARA_FIRMAR_TOKENS_JWT_DEBE_TENER_AL_MENOS_32_CARACTERES
+      - Jwt__Issuer=FirmezaAPI
+      - Jwt__Audience=FirmezaClientes
+      - Jwt__ExpireDays=1
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+    networks:
+      - app-network
+
+  admin:
+    build:
+      context: .
+      dockerfile: gestion_construccion.web/Dockerfile
+    ports:
+      - "5037:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Conexión a Clever Cloud
+      - ConnectionStrings__DefaultConnection=Host=bdhsdf1lbborwhlfuy3f-postgresql.services.clever-cloud.com;Port=50013;Database=bdhsdf1lbborwhlfuy3f;Username=uhsm2ac08esf4xlemhov;Password=HrUhHJz0xvZvLPhUFztaWRT7PVW42E;SSL Mode=Require;Trust Server Certificate=true
+      - SmtpSettings__Server=smtp.gmail.com
+      - SmtpSettings__Port=587
+      - SmtpSettings__SenderName="Firmeza Construcción"
+      - SmtpSettings__SenderEmail=allisonpauleth13@gmail.com
+      - SmtpSettings__Username=allisonpauleth13@gmail.com
+      - SmtpSettings__Password=qtqciitocmhgncmx
+    depends_on:
+      - api
+    networks:
+      - app-network
+
+  # client:
+  #   build:
+  #     context: .
+  #     dockerfile: Firmeza.Client/Dockerfile
+  #   ports:
+  #     - "3000:80"
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge

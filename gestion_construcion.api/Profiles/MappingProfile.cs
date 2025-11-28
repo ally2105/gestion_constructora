@@ -8,26 +8,26 @@ namespace Firmeza.Api.Profiles
     {
         public MappingProfile()
         {
-            // Mapeo de Producto a ProductoDto y viceversa
+            // Mapping from Product to ProductDto and vice versa
             CreateMap<Producto, ProductoDto>();
             CreateMap<ProductoCreateDto, Producto>();
 
-            // Mapeo de Cliente a ClienteDto
+            // Mapping from Client to ClientDto
             CreateMap<Cliente, ClienteDto>()
                 .ForMember(dest => dest.Nombre, opt => opt.MapFrom(src => src.Usuario.Nombre))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Usuario.Email));
 
-            // Mapeo para la creación de Clientes
+            // Mapping for creating Clients
             CreateMap<ClienteCreateDto, Usuario>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
             CreateMap<ClienteCreateDto, Cliente>();
 
-            // Mapeo para la actualización de Clientes
+            // Mapping for updating Clients
             CreateMap<ClienteUpdateDto, Usuario>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
             CreateMap<ClienteUpdateDto, Cliente>();
 
-            // Mapeo para Ventas
+            // Mapping for Sales
             CreateMap<DetalleVenta, DetalleVentaDto>()
                 .ForMember(dest => dest.ProductoNombre, opt => opt.MapFrom(src => src.Producto.Nombre));
             CreateMap<Venta, VentaDto>()
