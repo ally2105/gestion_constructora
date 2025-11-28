@@ -1,0 +1,36 @@
+@model gestion_construccion.web.Models.ViewModels.ProductoViewModel
+
+@{
+    ViewData["Title"] = "Crear Producto";
+}
+
+<div class="card-admin card-admin-enhanced">
+    <div class="card-header card-header-enhanced">
+        <div class="header-left">
+            <i class="fas fa-plus-circle icon-header"></i>
+            <div>
+                <h2 class="title">Crear Nuevo Producto</h2>
+                <p class="subtitle">Ingrese los detalles del nuevo producto para añadirlo al inventario.</p>
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="Create">
+        <div class="form-content">
+            <partial name="_ProductoForm" model="Model" />
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-admin btn-save">
+                <i class="fas fa-plus"></i> Crear Producto
+            </button>
+            <a asp-action="Index" class="btn-admin-secondary btn-cancel">
+                <i class="fas fa-times-circle"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

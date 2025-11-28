@@ -1,5 +1,50 @@
+<<<<<<< HEAD
 bin/
 obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+=======
+# --- .NET ---
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+/*.nupkg
+/.vs/
+
+# --- NuGet packages ---
+/packages/
+
+# --- Rider / ReSharper ---
+riderModule.iml
+/_ReSharper.Caches/
+
+# --- NPM / Vite ---
+Firmeza.Client/node_modules/
+Firmeza.Client/dist/
+Firmeza.Client/.vite/
+
+# --- Environment ---
+*.env
+*.env.local
+*.env.development
+*.env.production
+
+# --- Logs ---
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- System ---
+.DS_Store
+Thumbs.db
+>>>>>>> develop

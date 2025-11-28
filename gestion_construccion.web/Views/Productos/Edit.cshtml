@@ -1,0 +1,43 @@
+@model gestion_construccion.web.Models.ViewModels.ProductoViewModel
+
+@{
+    ViewData["Title"] = "Editar Producto";
+}
+
+<div class="card-admin card-admin-enhanced">
+
+    <div class="card-header card-header-enhanced">
+        <div class="header-left">
+            <i class="fas fa-box-open icon-header"></i>
+            <div>
+                <h2 class="title">@Model.Nombre</h2>
+                <p class="subtitle">Modifica los datos del producto y guarda los cambios</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="badge-id">ID: @Model.Id</span>
+        </div>
+    </div>
+
+    <form asp-action="Edit">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-content">
+            <partial name="_ProductoForm" model="Model" />
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-admin btn-save">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+
+            <a asp-action="Index" class="btn-admin-secondary btn-cancel">
+                <i class="fas fa-times-circle"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

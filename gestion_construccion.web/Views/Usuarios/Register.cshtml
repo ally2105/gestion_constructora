@@ -1,0 +1,34 @@
+@model gestion_construccion.web.Models.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Registrarse";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<div class="register-card-admin">
+    <h2 class="register-title-admin">Registrar Administrador</h2>
+    <form asp-action="Register">
+        <div asp-validation-summary="All" class="validation-summary-errors"></div>
+
+        <div class="form-group-admin">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control-admin" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="form-group-admin">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" class="form-control-admin" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="form-group-admin">
+            <label asp-for="ConfirmPassword"></label>
+            <input asp-for="ConfirmPassword" class="form-control-admin" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn-admin btn-register-admin">Registrarse</button>
+        
+        <p class="register-link-admin">
+            ¿Ya tienes una cuenta? <a asp-controller="Usuarios" asp-action="Login">Inicia sesión aquí</a>
+        </p>
+    </form>
+</div>

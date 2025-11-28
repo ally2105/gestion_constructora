@@ -1,0 +1,102 @@
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px); /* Restar altura del navbar */
+  padding: 20px;
+}
+
+.form-card {
+  background: var(--color-card-bg);
+  padding: 40px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--color-border);
+  width: 100%;
+  max-width: 500px; /* Aumentar un poco el ancho */
+}
+
+.form-title {
+  text-align: center;
+  margin-bottom: 35px;
+  color: var(--color-primary);
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--color-text-main); /* Texto principal para labels */
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 14px; /* Aumentar padding */
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text-main);
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(253, 184, 19, 0.25); /* Sombra más pronunciada */
+  background: var(--color-bg); /* Asegurar que el fondo no cambie */
+  color: var(--color-text-main); /* Asegurar que el texto no cambie */
+}
+
+.form-error {
+  color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.15); /* Fondo más oscuro */
+  border: 1px solid #e74c3c;
+  padding: 12px;
+  border-radius: var(--radius);
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 0.95rem;
+}
+
+.form-success {
+  color: #2ECC71;
+  background-color: rgba(46, 204, 113, 0.15);
+  border: 1px solid #2ECC71;
+  padding: 12px;
+  border-radius: var(--radius);
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 0.95rem;
+}
+
+.form-link {
+  margin-top: 30px;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+}
+
+.form-link a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.form-link a:hover {
+  color: var(--color-primary-hover);
+}
+
+.btn-form-submit {
+  width: 100%;
+  padding: 15px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 20px;
+}

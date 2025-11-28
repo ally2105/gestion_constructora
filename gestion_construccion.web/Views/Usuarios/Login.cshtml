@@ -1,0 +1,72 @@
+@model gestion_construccion.web.Models.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<div class="login-container-pro">
+
+    <!-- Branding -->
+    <div class="login-left-pro">
+        <div class="brand-box-pro">
+            <h1 class="brand-title-pro">Firmaza</h1>
+            <p class="brand-subtitle-pro">
+                Tu Plataforma Integral para la<br />
+                Gestión de Construcción
+            </p>
+        </div>
+        
+        <div class="login-contact-info">
+            <div class="contact-item">
+                <span class="contact-label">Soporte:</span>
+                <span class="contact-value">+51 987 654 321</span>
+            </div>
+            <div class="contact-item">
+                <span class="contact-label">Email:</span>
+                <span class="contact-value">soporte@firmeza.com</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="login-right-pro">
+        <div class="login-card-pro">
+
+            <h2 class="form-title-pro">Acceso de Administrador</h2>
+
+            <form asp-action="Login">
+
+                <!-- Email -->
+                <div class="input-group-pro">
+                    <label asp-for="Email"></label>
+                    <div class="input-wrapper-pro">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input asp-for="Email" placeholder="admin@empresa.com" />
+                    </div>
+                    <span asp-validation-for="Email" class="error-pro"></span>
+                </div>
+
+                <!-- Password -->
+                <div class="input-group-pro">
+                    <label asp-for="Password"></label>
+                    <div class="input-wrapper-pro">
+                        <i class="fa-solid fa-lock"></i>
+                        <input asp-for="Password" type="password" placeholder="••••••••" />
+                    </div>
+                    <span asp-validation-for="Password" class="error-pro"></span>
+                </div>
+
+                <!-- Remember -->
+                <div class="remember-pro">
+                    <input type="checkbox" asp-for="RememberMe" />
+                    <label asp-for="RememberMe">Recordarme</label>
+                </div>
+
+                <button type="submit" class="btn-pro">Ingresar</button>
+
+            </form>
+        </div>
+    </div>
+
+</div>

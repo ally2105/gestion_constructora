@@ -1,0 +1,102 @@
+services:
+  tests:
+    build:
+      context: .
+      dockerfile: Firmeza.Tests/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=gestion_construccion;Username=postgres;Password=Qwe.123*
+    networks:
+      - app-network
+
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: gestion_construccion
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Qwe.123*
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d gestion_construccion" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  api:
+    build:
+      context: .
+      dockerfile: gestion_construcion.api/Dockerfile
+    ports:
+      - "5165:8080" # Mapea el puerto 5165 del host al 8080 del contenedor
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=gestion_construccion;Username=postgres;Password=Qwe.123*
+      - SmtpSettings__Server=smtp.gmail.com
+      - SmtpSettings__Port=587
+      - SmtpSettings__SenderName="Firmeza Construcción"
+      - SmtpSettings__SenderEmail=allisonpauleth13@gmail.com
+      - SmtpSettings__Username=allisonpauleth13@gmail.com
+      - SmtpSettings__Password=qtqciitocmhgncmx
+      - Jwt__Key=ESTA_ES_MI_CLAVE_SECRETA_SUPER_LARGA_Y_COMPLEJA_PARA_FIRMAR_TOKENS_JWT_DEBE_TENER_AL_MENOS_32_CARACTERES
+      - Jwt__Issuer=FirmezaAPI
+      - Jwt__Audience=FirmezaClientes
+      - Jwt__ExpireDays=1
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  admin:
+    build:
+      context: .
+      dockerfile: gestion_construccion.web/Dockerfile
+    ports:
+      - "5031:8080" # Mapea el puerto 5031 del host al 8080 del contenedor
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=gestion_construccion;Username=postgres;Password=Qwe.123*
+      - SmtpSettings__Server=smtp.gmail.com
+      - SmtpSettings__Port=587
+      - SmtpSettings__SenderName="Firmeza Construcción"
+      - SmtpSettings__SenderEmail=allisonpauleth13@gmail.com
+      - SmtpSettings__Username=allisonpauleth13@gmail.com
+      - SmtpSettings__Password=qtqciitocmhgncmx
+    depends_on:
+      - api
+    networks:
+      - app-network
+
+  # CLIENT COMMENTED OUT DUE TO DOCKER HUB NETWORK CONNECTIVITY ISSUES
+  # Uncomment when Docker network is available
+  # client:
+  #   build:
+  #     context: .
+  #     dockerfile: Firmeza.Client/Dockerfile
+  #   ports:
+  #     - "3000:80" # Mapea el puerto 3000 del host al 80 del contenedor Nginx
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

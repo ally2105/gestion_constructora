@@ -1,0 +1,49 @@
+@model Firmeza.Core.Models.Producto
+
+@{
+    ViewData["Title"] = "Detalles del Producto";
+}
+
+<div class="card-admin card-admin-enhanced">
+    <div class="card-header card-header-enhanced">
+        <div class="header-left">
+            <i class="fas fa-box icon-header"></i>
+            <div>
+                <h2 class="title">@Model.Nombre</h2>
+                <p class="subtitle">Información detallada del producto</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="badge-id">ID: @Model.Id</span>
+        </div>
+    </div>
+
+    <div class="form-content">
+        @if (Model != null)
+        {
+            <dl class="row-details">
+                <dt>Descripción:</dt>
+                <dd>@Html.DisplayFor(model => model.Descripcion)</dd>
+
+                <dt>Precio:</dt>
+                <dd style="color: var(--color-price);">@Model.Precio.ToString("C")</dd>
+
+                <dt>Stock:</dt>
+                <dd>@Html.DisplayFor(model => model.Stock)</dd>
+            </dl>
+        }
+        else
+        {
+            <p style="color: var(--color-text-secondary);">No se encontraron los detalles del producto.</p>
+        }
+    </div>
+
+    <div class="form-actions">
+        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn-admin btn-save">
+            <i class="fas fa-edit"></i> Editar Producto
+        </a> 
+        <a asp-action="Index" class="btn-admin-secondary btn-cancel">
+            <i class="fas fa-arrow-alt-circle-left"></i> Volver a la lista
+        </a>
+    </div>
+</div>
