@@ -141,5 +141,12 @@ namespace Firmeza.Infrastructure.Services
                     c.Usuario.Identificacion.Contains(searchTerm))
                 .ToListAsync();
         }
+
+        public async Task<Cliente?> GetClienteByUsuarioIdAsync(int usuarioId)
+        {
+            return await _unitOfWork.Clientes.GetQuery()
+                .Include(c => c.Usuario!)
+                .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+        }
     }
 }

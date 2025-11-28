@@ -12,15 +12,18 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        // El nombre del usuario está en el claim 'name' que configuramos en la API
-        // El email está en 'email'
-        setUser({ 
-          name: decodedToken.name, 
-          email: decodedToken.email 
+        // Extract user information from JWT claims
+        // 'sub' contains the user ID (clienteId)
+        // 'name' contains the user's name
+        // 'email' contains the user's email
+        setUser({
+          id: decodedToken.sub, // User ID from JWT 'sub' claim
+          name: decodedToken.name,
+          email: decodedToken.email
         });
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       } catch (error) {
-        console.error("AuthContext: Token inválido.", error);
+        console.error("AuthContext: Invalid token.", error);
         logout();
       }
     }

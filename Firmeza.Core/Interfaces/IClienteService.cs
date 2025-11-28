@@ -40,5 +40,11 @@ namespace Firmeza.Core.Interfaces
         /// Searches for clients by name, identification, or email.
         /// </summary>
         Task<IEnumerable<Cliente>> SearchClientesAsync(string searchTerm);
+
+        /// <summary>
+        /// Gets a client by their associated user ID.
+        /// </summary>
+        /// <param name="usuarioId">The user ID.</param>
+        Task<Cliente?> GetClienteByUsuarioIdAsync(int usuarioId);
     }
 }

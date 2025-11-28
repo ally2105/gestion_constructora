@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext'; // Import AuthContext
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
 const CartPage = () => {
   const { cartItems, updateQuantity, removeFromCart, calculateTotals, clearCart } = useCart();
+  const { user } = useAuth(); // Get authenticated user
   const navigate = useNavigate();
   const { subtotal, tax, total } = calculateTotals();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -15,14 +17,25 @@ const CartPage = () => {
       toast.error('El carrito está vacío.');
       return;
     }
+
+    // Check if user is authenticated
+    if (!user || !user.id) {
+      toast.error('Debes iniciar sesión para realizar una compra.');
+      navigate('/login');
+      return;
+    }
+
     setIsProcessing(true);
 
-    const clienteId = 1; // Placeholder
-
     try {
+      // Get the clienteId from the API using the user's ID
+      const clienteResponse = await api.get(`/api/Clientes/byuser/${user.id}`);
+      const clienteId = clienteResponse.data.id;
+
+      // Process each cart item as a separate sale
       for (const item of cartItems) {
         const ventaData = {
-          clienteId: clienteId,
+          clienteId: clienteId, // Use the correct client ID
           fechaVenta: new Date().toISOString(),
           productoId: item.id,
           cantidad: item.quantity,
@@ -43,7 +56,12 @@ const CartPage = () => {
 
     } catch (err) {
       console.error('Error al procesar la compra:', err.response?.data || err.message);
-      toast.error('Error al procesar la compra.');
+
+      if (err.response?.status === 404) {
+        toast.error('No se encontró tu perfil de cliente. Por favor, contacta al administrador.');
+      } else {
+        toast.error('Error al procesar la compra.');
+      }
     } finally {
       setIsProcessing(false);
     }

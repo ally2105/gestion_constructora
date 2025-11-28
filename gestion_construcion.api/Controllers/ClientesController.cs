@@ -51,6 +51,19 @@ namespace Firmeza.Api.Controllers
             return Ok(clienteDto);
         }
 
+        // GET: /api/Clientes/byuser/{usuarioId}
+        [HttpGet("byuser/{usuarioId}")]
+        public async Task<ActionResult<ClienteDto>> GetClienteByUsuarioId(int usuarioId)
+        {
+            var cliente = await _clienteService.GetClienteByUsuarioIdAsync(usuarioId);
+            if (cliente == null)
+            {
+                return NotFound(new { message = "Client not found for this user." });
+            }
+            var clienteDto = _mapper.Map<ClienteDto>(cliente);
+            return Ok(clienteDto);
+        }
+
         // POST: /api/Clientes
         [HttpPost]
         [AllowAnonymous] // Allow anyone to register
