@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Firmeza.Infrastructure.Services
 {
+    /// <summary>
+    /// Service responsible for business logic related to sales.
+    /// </summary>
     public class VentaService : IVentaService
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -19,9 +22,13 @@ namespace Firmeza.Infrastructure.Services
             _logger = logger;
         }
 
+        /// <inheritdoc />
         public async Task<Venta> CrearVentaAsync(VentaCreateDto model)
         {
-            var cliente = await _unitOfWork.Clientes.GetByIdAsync(model.ClienteId);
+            var cliente = await _unitOfWork.Clientes.GetQuery()
+                                            .Include(c => c.Usuario)
+                                            .FirstOrDefaultAsync(c => c.Id == model.ClienteId);
+            
             if (cliente == null) throw new ApplicationException("El cliente seleccionado no existe.");
 
             var producto = await _unitOfWork.Productos.GetByIdAsync(model.ProductoId);
@@ -56,16 +63,43 @@ namespace Firmeza.Infrastructure.Services
 
             // Cargar las propiedades de navegación necesarias para el controlador
             // Asegurarse de que cliente.Usuario no sea null antes de intentar cargarlo
-            if (cliente.UsuarioId != 0) // Asumiendo que 0 es un ID no válido
-            {
-                cliente.Usuario = await _unitOfWork.Usuarios.GetQuery().FirstOrDefaultAsync(u => u.Id == cliente.UsuarioId);
-            }
+            // Usuario ya cargado con Include al inicio
+
             
             venta.Cliente = cliente;
             venta.Detalles.Add(detalleVenta);
             detalleVenta.Producto = producto;
 
             return venta;
+        }
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<Venta>> GetAllVentasAsync()
+        {
+            return await _unitOfWork.Ventas
+                                    .GetQuery()
+                                    .Include(v => v.Cliente!)
+                                    .ThenInclude(c => c.Usuario!)
+                                    .ToListAsync();
+        }
+
+        /// <inheritdoc />
+        public async Task<Venta?> GetVentaByIdAsync(int id)
+        {
+            return await _unitOfWork.Ventas
+                                    .GetQuery()
+                                    .Include(v => v.Cliente!)
+                                    .ThenInclude(c => c.Usuario!)
+                                    .Include(v => v.Detalles!)
+                                    .ThenInclude(d => d.Producto!)
+                                    .FirstOrDefaultAsync(v => v.Id == id);
+        }
+
+        /// <inheritdoc />
+        public async Task UpdateVentaAsync(Venta venta)
+        {
+            _unitOfWork.Ventas.Update(venta);
+            await _unitOfWork.CompleteAsync();
         }
     }
 }

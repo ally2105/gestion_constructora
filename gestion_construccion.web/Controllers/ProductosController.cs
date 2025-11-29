@@ -9,6 +9,9 @@ using gestion_construccion.web.Models.ViewModels;
 namespace gestion_construccion.web.Controllers
 {
     [Authorize(Roles = "Administrador")]
+    /// <summary>
+    /// Controller for managing products (CRUD) from the administration panel.
+    /// </summary>
     public class ProductosController : Controller
     {
         private readonly IProductoService _productoService;
@@ -18,17 +21,31 @@ namespace gestion_construccion.web.Controllers
             _productoService = productoService;
         }
 
+        /// <summary>
+        /// Lists products, optionally filtered by a search term.
+        /// </summary>
+        /// <param name="searchTerm">Term to filter products by name or description.</param>
+        /// <returns>View with the list of products.</returns>
         public async Task<IActionResult> Index(string searchTerm)
         {
             var productos = await _productoService.SearchProductosAsync(searchTerm);
             return View(productos);
         }
 
+        /// <summary>
+        /// Displays the form to create a new product.
+        /// </summary>
+        /// <returns>Creation view.</returns>
         public IActionResult Create()
         {
             return View(new ProductoViewModel());
         }
 
+        /// <summary>
+        /// Processes the creation of a new product.
+        /// </summary>
+        /// <param name="model">Product data.</param>
+        /// <returns>Redirect to Index if successful, or view with errors.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductoViewModel model)

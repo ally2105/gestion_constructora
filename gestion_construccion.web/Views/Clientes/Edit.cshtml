@@ -4,15 +4,48 @@
     ViewData["Title"] = "Editar Cliente";
 }
 
-<div class="card-admin">
-    <div class="card-header">Editar Cliente: @Model.Nombre</div>
+<div class="card-admin card-admin-enhanced">
+
+    <div class="card-header card-header-enhanced">
+        <div class="header-left">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-header">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <div>
+                <h2 class="title">@Model.Nombre</h2>
+                <p class="subtitle">Modifica los datos del cliente y guarda los cambios</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="badge-id">ID: @Model.Id</span>
+        </div>
+    </div>
+
     <form asp-action="Edit">
         <input type="hidden" asp-for="Id" />
-        <partial name="_ClienteForm" model="Model" />
-        
-        <div style="margin-top: 20px;">
-            <button type="submit" class="btn-admin">Guardar Cambios</button>
-            <a asp-action="Index" class="btn-admin-secondary" style="margin-left: 10px;">Cancelar</a>
+
+        <div class="form-content">
+            <partial name="_ClienteForm" model="Model" />
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-admin btn-save">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Guardar Cambios
+            </button>
+
+            <a asp-action="Index" class="btn-admin-secondary btn-cancel">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5"></path>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Cancelar
+            </a>
         </div>
     </form>
 </div>

@@ -1,0 +1,231 @@
+/* Login Split Layout */
+.login-container-pro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Left Side - Image & Branding */
+.login-left-pro {
+    position: relative;
+    background-image: url('../img/login-worker.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* Space between brand and contact info */
+    align-items: flex-start;
+    /* Align text to left like reference? Or center? Reference has centered text but contact info box. Let's keep center for brand, but maybe move contact to bottom left */
+    padding: 4rem;
+    color: #fff;
+}
+
+/* Overlay */
+.login-left-pro::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(251, 191, 36, 0.2) 100%);
+    /* Darker overlay for better contrast */
+    z-index: 1;
+}
+
+.brand-box-pro {
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+    /* Push to center vertically if combined with margin-bottom auto, or just top */
+    margin-bottom: auto;
+    text-align: left;
+}
+
+.brand-title-pro {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--color-primary);
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    letter-spacing: -1px;
+}
+
+.brand-subtitle-pro {
+    font-size: 1.5rem;
+    line-height: 1.4;
+    color: #f8fafc;
+    font-weight: 300;
+}
+
+/* Contact Info Box */
+.login-contact-info {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.contact-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.contact-item:last-child {
+    margin-bottom: 0;
+}
+
+.contact-label {
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.contact-value {
+    color: #f1f5f9;
+}
+
+/* Right Side - Form */
+.login-right-pro {
+    background-color: var(--color-bg);
+    /* Dark theme */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    position: relative;
+}
+
+.login-card-pro {
+    width: 100%;
+    max-width: 420px;
+    padding: 2rem;
+}
+
+.form-title-pro {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    /* Amber title */
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Inputs */
+.input-group-pro {
+    margin-bottom: 1.5rem;
+}
+
+.input-group-pro label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-wrapper-pro {
+    position: relative;
+}
+
+.input-wrapper-pro i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    transition: color 0.3s;
+    z-index: 10;
+}
+
+.input-wrapper-pro input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 2.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    /* Slightly squarer than before */
+    color: var(--color-text-main);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.input-wrapper-pro input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.input-wrapper-pro input:focus+i {
+    color: var(--color-primary);
+}
+
+/* Checkbox */
+.remember-pro {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+}
+
+.remember-pro input[type="checkbox"] {
+    accent-color: var(--color-primary);
+    width: 1.1rem;
+    height: 1.1rem;
+    cursor: pointer;
+}
+
+.remember-pro label {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+/* Button */
+.btn-pro {
+    width: 100%;
+    padding: 1rem;
+    background: var(--color-primary);
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-pro:hover {
+    background: var(--color-primary-hover);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .login-container-pro {
+        grid-template-columns: 1fr;
+    }
+
+    .login-left-pro {
+        display: none;
+    }
+
+    .login-right-pro {
+        padding: 1.5rem;
+    }
+}

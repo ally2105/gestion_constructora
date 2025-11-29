@@ -5,7 +5,7 @@ namespace gestion_construccion.web.Models.ViewModels
 {
     public class ClienteViewModel
     {
-        public int Id { get; set; } // ID del cliente, necesario para la edición
+        public int Id { get; set; } // Client ID, required for editing
 
         [Required]
         [EmailAddress]
@@ -21,8 +21,8 @@ namespace gestion_construccion.web.Models.ViewModels
         [MinimumAge(18)]
         public DateTime FechaNacimiento { get; set; }
 
-        // La contraseña solo es requerida para la creación, no para la edición.
-        // Para manejar esto, podemos hacerla opcional y validarla en el controlador si es necesario.
+        // Password is only required for creation, not for editing.
+        // To handle this, we make it optional and validate it in the controller if necessary.
         [StringLength(100, MinimumLength = 6)]
         [DataType(DataType.Password)]
         public string? Password { get; set; }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace gestion_construccion.web.Models.ViewModels
 {
-    // ViewModel para manejar la creación de una nueva venta.
+    // ViewModel to handle the creation of a new sale.
     public class VentaViewModel
     {
         [Required(ErrorMessage = "Debe seleccionar un cliente.")]
@@ -15,7 +15,7 @@ namespace gestion_construccion.web.Models.ViewModels
         [DataType(DataType.Date)]
         public DateTime FechaVenta { get; set; } = DateTime.Today;
 
-        // Para esta versión, manejaremos un solo producto por venta.
+        // For this version, we will handle a single product per sale.
         [Required(ErrorMessage = "Debe seleccionar un producto.")]
         [Display(Name = "Producto")]
         public int ProductoId { get; set; }

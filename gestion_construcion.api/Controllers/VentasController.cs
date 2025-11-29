@@ -88,10 +88,38 @@ namespace Firmeza.Api.Controllers
                 var pdfPath = await _pdfService.GenerarReciboVentaAsync(nuevaVenta, _webHostEnvironment.ContentRootPath);
                 _logger.LogInformation("PDF generado con éxito. Ruta: {PdfPath}", pdfPath);
 
+                _logger.LogWarning("----------------------------------------------------------------");
+                _logger.LogWarning("DATOS DE ENVÍO DE CORREO:");
+                _logger.LogWarning("REMITENTE (Config): {SenderEmail}", _emailService.GetType().Name); // Solo para referencia
+                _logger.LogWarning("DESTINATARIO (Cliente): {ClienteEmail}", nuevaVenta.Cliente.Usuario.Email);
+                _logger.LogWarning("NOMBRE CLIENTE: {ClienteNombre}", nuevaVenta.Cliente.Usuario.Nombre);
+                _logger.LogWarning("----------------------------------------------------------------");
+
                 _logger.LogInformation("Iniciando envío de correo para Venta ID: {VentaId} al email: {Email}", nuevaVenta.Id, nuevaVenta.Cliente.Usuario.Email);
                 // Enviar correo
-                var subject = $"Confirmación de tu compra - Venta #{nuevaVenta.Id}";
-                var message = $"<h1>¡Gracias por tu compra, {nuevaVenta.Cliente.Usuario.Nombre}!</h1><p>Adjuntamos el recibo de tu compra.</p>";
+                var subject = $"Recibo de Compra - Venta #{nuevaVenta.Id}";
+                var message = $@"
+                    <html>
+                    <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                        <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
+                            <h2 style='color: #2563eb;'>¡Gracias por tu compra, {nuevaVenta.Cliente.Usuario.Nombre}!</h2>
+                            <p>Tu compra ha sido procesada exitosamente.</p>
+                            <div style='background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;'>
+                                <p style='margin: 5px 0;'><strong>Número de Venta:</strong> #{nuevaVenta.Id}</p>
+                                <p style='margin: 5px 0;'><strong>Fecha:</strong> {nuevaVenta.Fecha:dd/MM/yyyy HH:mm}</p>
+                                <p style='margin: 5px 0;'><strong>Total:</strong> {nuevaVenta.Total:C}</p>
+                            </div>
+                            <p>Adjunto encontrarás el recibo de tu compra en formato PDF.</p>
+                            <p style='color: #6b7280; font-size: 14px; margin-top: 30px;'>
+                                Si tienes alguna pregunta, no dudes en contactarnos.
+                            </p>
+                            <hr style='border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;'>
+                            <p style='color: #9ca3af; font-size: 12px;'>
+                                Este es un correo automático, por favor no responder.
+                            </p>
+                        </div>
+                    </body>
+                    </html>";
                 await _emailService.SendEmailAsync(nuevaVenta.Cliente.Usuario.Email!, subject, message, pdfPath);
                 _logger.LogInformation("Correo de confirmación de compra enviado con éxito para Venta ID: {VentaId}", nuevaVenta.Id);
             }

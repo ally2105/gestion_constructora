@@ -8,6 +8,9 @@ using Firmeza.Core.Models;
 
 namespace gestion_construccion.web.Controllers
 {
+    /// <summary>
+    /// Controller for client management (CRUD).
+    /// </summary>
     [Authorize(Roles = "Administrador")]
     public class ClientesController : Controller
     {
@@ -18,22 +21,36 @@ namespace gestion_construccion.web.Controllers
             _clienteService = clienteService;
         }
 
+        /// <summary>
+        /// Displays the list of clients with search option.
+        /// </summary>
+        /// <param name="searchTerm">Search term (name or identification).</param>
+        /// <returns>View with the list of clients.</returns>
         public async Task<IActionResult> Index(string searchTerm)
         {
             var clientes = await _clienteService.SearchClientesAsync(searchTerm);
             return View(clientes);
         }
 
+        /// <summary>
+        /// Displays the form to create a new client.
+        /// </summary>
+        /// <returns>Creation view.</returns>
         public IActionResult Create()
         {
             return View(new ClienteViewModel());
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ClienteViewModel model)
+    /// <summary>
+    /// Processes the creation of a new client.
+    /// </summary>
+    /// <param name="model">Client data.</param>
+    /// <returns>Redirect to Index if successful, or view with errors.</returns>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(ClienteViewModel model)
         {
-            // Validación explícita para la contraseña en la creación
+            // Explicit validation for password on creation
             if (string.IsNullOrEmpty(model.Password))
             {
                 ModelState.AddModelError("Password", "La contraseña es obligatoria.");
@@ -70,12 +87,17 @@ namespace gestion_construccion.web.Controllers
                 catch (Exception ex)
                 {
                     Debug.WriteLine(ex.ToString());
-                    ModelState.AddModelError(string.Empty, $"Error inesperado: {ex.Message}");
+                    ModelState.AddModelError(string.Empty, $"Unexpected error: {ex.Message}");
                 }
             }
             return View(model);
         }
 
+        /// <summary>
+        /// Displays the form to edit an existing client.
+        /// </summary>
+        /// <param name="id">Client ID.</param>
+        /// <returns>Edit view.</returns>
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -85,7 +107,7 @@ namespace gestion_construccion.web.Controllers
             var viewModel = new ClienteViewModel
             {
                 Id = cliente.Id,
-                Email = cliente.Usuario.Email,
+                Email = cliente.Usuario.Email!,
                 Nombre = cliente.Usuario.Nombre,
                 Identificacion = cliente.Usuario.Identificacion,
                 FechaNacimiento = cliente.Usuario.FechaNacimiento,
@@ -102,7 +124,7 @@ namespace gestion_construccion.web.Controllers
         {
             if (id != model.Id) return NotFound();
 
-            // Como la contraseña es opcional en la edición, la removemos del ModelState
+            // As the password is optional in edit, we remove it from ModelState
             ModelState.Remove("Password");
 
             if (ModelState.IsValid)
@@ -132,12 +154,17 @@ namespace gestion_construccion.web.Controllers
                 catch (Exception ex)
                 {
                     Debug.WriteLine(ex.ToString());
-                    ModelState.AddModelError(string.Empty, $"Error inesperado: {ex.Message}.");
+                    ModelState.AddModelError(string.Empty, $"Unexpected error: {ex.Message}.");
                 }
             }
             return View(model);
         }
 
+        /// <summary>
+        /// Displays the confirmation to delete a client.
+        /// </summary>
+        /// <param name="id">Client ID.</param>
+        /// <returns>Delete view.</returns>
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -165,7 +192,7 @@ namespace gestion_construccion.web.Controllers
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.ToString());
-                ModelState.AddModelError(string.Empty, $"Error inesperado: {ex.Message}.");
+                ModelState.AddModelError(string.Empty, $"Unexpected error: {ex.Message}.");
                 var cliente = await _clienteService.GetClienteByIdAsync(id);
                 return View(cliente);
             }

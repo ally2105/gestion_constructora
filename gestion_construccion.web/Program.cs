@@ -2,7 +2,7 @@ using Firmeza.Core.Data;
 using Firmeza.Core.Models;
 using Firmeza.Core.Interfaces;
 using Firmeza.Infrastructure.Repositories;
-using Firmeza.Infrastructure.Services; // Ahora PdfService está aquí
+using Firmeza.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
@@ -54,6 +54,9 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
+        var context = services.GetRequiredService<AppDbContext>();
+        await context.Database.MigrateAsync();
+        
         var configuration = services.GetRequiredService<IConfiguration>();
         await SeedData.Initialize(services, configuration);
     }

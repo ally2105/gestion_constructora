@@ -7,6 +7,9 @@ using Firmeza.Core.Interfaces;
 
 namespace Firmeza.Infrastructure.Services
 {
+    /// <summary>
+    /// Service for product management.
+    /// </summary>
     public class ProductoService : IProductoService
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -68,6 +71,15 @@ namespace Firmeza.Infrastructure.Services
             return await _unitOfWork.Productos.FindAsync(p => 
                 p.Nombre.Contains(searchTerm) || 
                 (p.Descripcion != null && p.Descripcion.Contains(searchTerm)));
+        }
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<Producto>> GetProductosConStockAsync()
+        {
+            return await _unitOfWork.Productos
+                                    .GetQuery()
+                                    .Where(p => p.Stock > 0)
+                                    .ToListAsync();
         }
     }
 }
