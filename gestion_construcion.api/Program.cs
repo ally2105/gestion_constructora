@@ -92,6 +92,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
+// Registrar HttpClient para el ChatController
+builder.Services.AddHttpClient();
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IProductoService, ProductoService>();

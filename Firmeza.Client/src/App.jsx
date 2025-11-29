@@ -7,6 +7,7 @@ import RegisterPage from './pages/RegisterPage';
 import ProductsPage from './pages/ProductsPage';
 import CartPage from './pages/CartPage';
 import Navbar from './components/Navbar';
+import ChatAssistant from './components/ChatAssistant';
 import { Toaster } from 'react-hot-toast';
 import './App.css';
 
@@ -43,6 +44,7 @@ function App() {
               <Route path="*" element={<Navigate to="/products" />} />
             </Routes>
           </main>
+          <ChatAssistant />
         </Router>
       </CartProvider>
     </AuthProvider>
