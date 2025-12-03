@@ -19,7 +19,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: Qwe.123*
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -80,19 +80,16 @@ services:
       - api
     networks:
       - app-network
-
-  # CLIENT COMMENTED OUT DUE TO DOCKER HUB NETWORK CONNECTIVITY ISSUES
-  # Uncomment when Docker network is available
-  # client:
-  #   build:
-  #     context: .
-  #     dockerfile: Firmeza.Client/Dockerfile
-  #   ports:
-  #     - "3000:80" # Mapea el puerto 3000 del host al 80 del contenedor Nginx
-  #   depends_on:
-  #     - api
-  #   networks:
-  #     - app-network
+  client:
+    build:
+      context: ./Firmeza.Client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80" # Mapea el puerto 3000 del host al 80 del contenedor Nginx
+    depends_on:
+      - api
+    networks:
+      - app-network
 
 networks:
   app-network:

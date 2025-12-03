@@ -105,43 +105,189 @@ El proyecto sigue una **arquitectura en capas** con separación de responsabilid
 
 ## 🐳 Ejecución con Docker (Recomendado)
 
-La forma más sencilla de levantar todo el entorno (base de datos, API, frontend, admin) es a través de Docker Compose.
+La forma más sencilla y rápida de levantar todo el proyecto es usando Docker Compose. Esto iniciará automáticamente la base de datos, la API, el panel de administración y el frontend de clientes, todo configurado y conectado.
 
-### Prerrequisitos
-- **Docker:** [Instalar Docker](https://docs.docker.com/get-docker/)
-- **Docker Compose:** (Viene incluido con Docker Desktop)
+### 📋 Prerrequisitos
 
-### Pasos
-1. **Clona el repositorio:**
-   ```bash
-   git clone <URL_DEL_REPOSITORIO>
-   cd Firmeza
-   ```
+Antes de comenzar, asegúrate de tener instalado:
 
-2. **Levanta todos los servicios:**
-   ```bash
-   docker compose up --build
-   ```
-   
-   Este comando realizará las siguientes acciones:
-   1. Construirá las imágenes de Docker para cada servicio
-   2. Ejecutará las pruebas unitarias
-   3. Si las pruebas pasan, levantará los contenedores para:
-      - PostgreSQL (Base de datos)
-      - API REST
-      - Panel de Administración
-      - Frontend de Clientes
+- **Docker Desktop:** [Descargar aquí](https://docs.docker.com/get-docker/)
+  - Incluye Docker Engine y Docker Compose
+  - Disponible para Windows, macOS y Linux
+  - Verifica la instalación ejecutando: `docker --version` y `docker compose version`
 
-3. **Accede a los servicios:**
-   - **Frontend de Clientes:** `http://localhost:3000`
-   - **Panel de Administración:** `http://localhost:5037`
-   - **API (Swagger):** `http://localhost:5165/swagger`
-   - **API Health Check:** `http://localhost:5165/health`
+### 🚀 Pasos para Iniciar el Proyecto
 
-4. **Detener los servicios:**
-   ```bash
-   docker compose down
-   ```
+#### 1. Clona el repositorio
+
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd gestion_constructora
+```
+
+#### 2. Inicia todos los servicios
+
+**Opción A: En primer plano (ver logs en tiempo real)**
+```bash
+docker compose up --build
+```
+
+**Opción B: En segundo plano (recomendado)**
+```bash
+docker compose up -d --build
+```
+
+> **💡 Nota:** La primera vez tomará varios minutos porque debe descargar imágenes base y compilar todo el código. Las siguientes ejecuciones serán más rápidas.
+
+**¿Qué hace este comando?**
+1. ✅ Construye las imágenes Docker de todos los servicios
+2. ✅ Ejecuta las pruebas unitarias automáticamente
+3. ✅ Inicia la base de datos PostgreSQL
+4. ✅ Aplica las migraciones de base de datos
+5. ✅ Levanta la API REST en el puerto 5165
+6. ✅ Levanta el panel de administración en el puerto 5031
+7. ✅ Levanta el frontend de clientes en el puerto 3000
+
+#### 3. Verifica que todo está corriendo
+
+```bash
+docker compose ps
+```
+
+Deberías ver algo como:
+
+```
+NAME                            STATUS
+gestion_constructora-db-1       Up (healthy)
+gestion_constructora-api-1      Up
+gestion_constructora-admin-1    Up
+gestion_constructora-client-1   Up
+```
+
+#### 4. Accede a las aplicaciones
+
+Una vez que todos los contenedores estén corriendo, abre tu navegador:
+
+| Servicio | URL | Descripción |
+|----------|-----|-------------|
+| 🛒 **Frontend Cliente** | [http://localhost:3000](http://localhost:3000) | Tienda para clientes finales (React SPA) |
+| 🔧 **Panel Admin** | [http://localhost:5031](http://localhost:5031) | Panel de administración (ASP.NET MVC) |
+| 📡 **API Docs** | [http://localhost:5165/swagger](http://localhost:5165/swagger) | Documentación Swagger de la API |
+| ❤️ **Health Check** | [http://localhost:5165/health](http://localhost:5165/health) | Estado de la API |
+
+#### 5. Credenciales por defecto
+
+**Panel de Administración:**
+- **Usuario:** `admin@firmeza.com`
+- **Contraseña:** `Admin123!`
+
+**Frontend de Clientes:**
+- Puedes registrar nuevos usuarios desde la página de registro
+- Los usuarios registrados tienen rol de "Cliente" automáticamente
+
+### 🛑 Detener los Servicios
+
+**Detener y eliminar contenedores (conserva la base de datos):**
+```bash
+docker compose down
+```
+
+**Detener, eliminar contenedores Y borrar todos los datos:**
+```bash
+docker compose down -v
+```
+
+> ⚠️ **Importante:** El comando con `-v` eliminará todos los datos de la base de datos. Úsalo solo si quieres empezar desde cero.
+
+### 🔍 Comandos Útiles
+
+**Ver logs de todos los servicios:**
+```bash
+docker compose logs -f
+```
+
+**Ver logs de un servicio específico:**
+```bash
+docker compose logs -f api        # Solo API
+docker compose logs -f client     # Solo Frontend
+docker compose logs -f admin      # Solo Panel Admin
+```
+
+**Reiniciar un servicio específico:**
+```bash
+docker compose restart api
+```
+
+**Reconstruir un servicio sin afectar los demás:**
+```bash
+docker compose up -d --build client
+```
+
+### 🔧 Solución de Problemas Comunes
+
+#### ❌ Error: "port is already allocated"
+
+**Problema:** Otro proceso está usando los puertos 3000, 5031, 5165 o 5434.
+
+**Solución:**
+```bash
+# Detener Docker Compose
+docker compose down
+
+# Matar procesos que puedan estar ocupando puertos
+pkill -f dotnet
+pkill -f node
+
+# Verificar que los puertos estén libres
+lsof -i :3000 -i :5031 -i :5165 -i :5434
+
+# Volver a iniciar
+docker compose up -d --build
+```
+
+#### ❌ Error: "No se puede conectar con el servidor"
+
+**Problema:** El frontend no puede conectarse a la API.
+
+**Solución:**
+```bash
+# Verificar que la API está corriendo
+curl http://localhost:5165/health
+
+# Si no responde, revisar logs
+docker compose logs api
+
+# Reiniciar solo la API
+docker compose restart api
+```
+
+#### ❌ Error: "too many connections for role"
+
+**Problema:** La base de datos alcanzó el límite de conexiones.
+
+**Solución:**
+```bash
+# Reiniciar la base de datos
+docker compose restart db
+
+# Si persiste, limpiar todo y volver a empezar
+docker compose down
+docker compose up -d --build
+```
+
+#### ❌ Build muy lento o falla
+
+**Problema:** Problemas de red o caché corrupta.
+
+**Solución:**
+```bash
+# Limpiar caché de Docker
+docker system prune -a
+
+# Reconstruir desde cero
+docker compose build --no-cache
+docker compose up -d
+```
 
 ## 🛠️ Ejecución en Local (Sin Docker)
 

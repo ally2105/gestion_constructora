@@ -1,9 +1,9 @@
 # Stage 1: Build the React application
 FROM node:20-alpine AS build-stage
 WORKDIR /app
-COPY Firmeza.Client/package*.json ./
+COPY  package*.json ./
 RUN npm install
-COPY Firmeza.Client/. .
+COPY . .
 RUN npm run build
 
 # Stage 2: Serve the React application with Nginx

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import '../styles/ChatAssistant.css';
+import api from '../services/api';
 
 const ChatAssistant = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -47,15 +48,8 @@ const ChatAssistant = () => {
         setIsTyping(true);
 
         try {
-            const response = await fetch('http://localhost:5166/api/chat/message', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: inputMessage })
-            });
-
-            const data = await response.json();
+            const response = await api.post('/api/chat/message', { message: inputMessage });
+            const data = response.data;
 
             const botMessage = {
                 id: messages.length + 2,
