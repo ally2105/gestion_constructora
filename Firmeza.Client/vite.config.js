@@ -6,17 +6,23 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5166', // Actualizado al puerto 5166
-        changeOrigin: true,
-        secure: false,
+    host: true,
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom', 'axios'],
+        },
       },
     },
   },
-  test: { // Configuración para Vitest
+  test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './src/setupTests.js', // Opcional: archivo de configuración de pruebas
+    setupFiles: './src/setupTests.js',
   },
 });

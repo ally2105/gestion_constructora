@@ -1,19 +1,17 @@
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5165';
+
 const api = axios.create({
-  baseURL: 'http://localhost:5165', // URL completa de la API
+  baseURL: API_URL,
 });
 
 // Interceptor para añadir el token JWT a cada solicitud
 api.interceptors.request.use(
   (config) => {
-    console.log("Interceptor de Axios: Ejecutando para la URL:", config.url);
     const token = localStorage.getItem('token');
     if (token) {
-      console.log("Interceptor de Axios: Token encontrado. Añadiendo cabecera Authorization.");
       config.headers['Authorization'] = `Bearer ${token}`;
-    } else {
-      console.log("Interceptor de Axios: No se encontró token.");
     }
     return config;
   },
@@ -21,5 +19,41 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+// Interceptor de respuesta para manejar errores globales
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+// === MercadoPago API ===
+export const createPaymentPreference = async (items, payer) => {
+  const response = await api.post('/api/mercadopago/create-preference', { items, payer });
+  return response.data;
+};
+
+export const getPaymentStatus = async (paymentId) => {
+  const response = await api.get(`/api/mercadopago/payment-status/${paymentId}`);
+  return response.data;
+};
+
+// === Chat API ===
+export const sendChatMessage = async (message, cartContext = null) => {
+  const response = await api.post('/api/chat/message', { message, cartContext });
+  return response.data;
+};
+
+export const searchProductsChat = async (query) => {
+  const response = await api.post('/api/chat/product-search', { query });
+  return response.data;
+};
 
 export default api;
