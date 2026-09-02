@@ -2,7 +2,7 @@ using Firmeza.Core.Data;
 using Firmeza.Core.Interfaces;
 using Firmeza.Core.Models;
 using Firmeza.Infrastructure.Repositories;
-using Firmeza.Infrastructure.Services; // Ahora PdfService está aquí
+using Firmeza.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,9 +18,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000")
+            policy.SetIsOriginAllowed(origin => true) // Permitir peticiones desde Vercel y localhost
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
 
@@ -92,7 +93,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-// Registrar HttpClient para el ChatController
+// Registrar HttpClient para el ChatController y MercadoPagoController
 builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -111,7 +112,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 app.UseAuthentication();
 app.UseAuthorization();
