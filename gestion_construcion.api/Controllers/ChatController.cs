@@ -1,3 +1,5 @@
+using Firmeza.Core.Interfaces;
+using Firmeza.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
@@ -11,12 +13,18 @@ namespace gestion_construcion.api.Controllers
         private readonly IConfiguration _configuration;
         private readonly ILogger<ChatController> _logger;
         private readonly HttpClient _httpClient;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ChatController(IConfiguration configuration, ILogger<ChatController> logger, IHttpClientFactory httpClientFactory)
+        public ChatController(
+            IConfiguration configuration,
+            ILogger<ChatController> logger,
+            IHttpClientFactory httpClientFactory,
+            IUnitOfWork unitOfWork)
         {
             _configuration = configuration;
             _logger = logger;
             _httpClient = httpClientFactory.CreateClient();
+            _unitOfWork = unitOfWork;
         }
 
         [HttpPost("message")]
@@ -29,50 +37,75 @@ namespace gestion_construcion.api.Controllers
                     return BadRequest(new { error = "El mensaje no puede estar vacío" });
                 }
 
-                // Obtener la API key de Gemini desde la configuración
+                // Obtener catálogo actual de productos de la base de datos
+                var productos = await _unitOfWork.Productos.GetAllAsync();
+                var catalogSummary = string.Join("; ", productos.Select(p => $"{p.Nombre} (Precio: ${p.Precio:N0} COP, Stock: {p.Stock})"));
+
+                // Buscar si hay productos relevantes para retornar en el chat
+                var searchLower = request.Message.ToLower();
+                var matchingProducts = productos
+                    .Where(p => p.Nombre.ToLower().Contains(searchLower) || p.Descripcion.ToLower().Contains(searchLower))
+                    .Take(3)
+                    .Select(p => new ChatProductDto
+                    {
+                        Id = p.Id,
+                        Nombre = p.Nombre,
+                        Precio = p.Precio,
+                        Stock = p.Stock
+                    })
+                    .ToList();
+
                 var geminiApiKey = _configuration["GeminiApiKey"];
-                
+
                 if (string.IsNullOrEmpty(geminiApiKey))
                 {
                     _logger.LogWarning("GeminiApiKey no configurada, usando respuesta de fallback");
-                    return Ok(new ChatMessageResponse 
-                    { 
-                        Response = GetFallbackResponse(request.Message) 
+                    return Ok(new ChatMessageResponse
+                    {
+                        Response = GetFallbackResponse(request.Message),
+                        Products = matchingProducts
                     });
                 }
 
-                // Llamar a la API de Gemini
-                var geminiResponse = await CallGeminiApi(request.Message, geminiApiKey);
-                
-                return Ok(new ChatMessageResponse 
-                { 
-                    Response = geminiResponse 
+                // Llamar a Gemini API con el contexto real del catálogo
+                var geminiResponse = await CallGeminiApi(request.Message, catalogSummary, request.CartContext, geminiApiKey);
+
+                return Ok(new ChatMessageResponse
+                {
+                    Response = geminiResponse,
+                    Products = matchingProducts.Count > 0 ? matchingProducts : null
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al procesar el mensaje del chat");
-                return Ok(new ChatMessageResponse 
-                { 
-                    Response = "Lo siento, estoy teniendo problemas técnicos. ¿Puedo ayudarte con información sobre nuestros productos o servicios?" 
+                return Ok(new ChatMessageResponse
+                {
+                    Response = "¡Hola! Estoy listo para ayudarte a encontrar los mejores materiales de construcción. ¿Qué proyecto estás planeando?",
+                    Products = null
                 });
             }
         }
 
-        private async Task<string> CallGeminiApi(string message, string apiKey)
+        private async Task<string> CallGeminiApi(string message, string catalogSummary, string? cartContext, string apiKey)
         {
             try
             {
-                var systemPrompt = @"Eres un asistente virtual amigable y profesional de Firmeza, una empresa de construcción. 
-Tu objetivo es ayudar a los clientes con información sobre:
-- Productos de construcción disponibles
-- Proceso de compra y pedidos
-- Métodos de pago
-- Envíos y entregas
-- Información general de la empresa
+                var systemPrompt = $@"Eres un experto asesor de ventas e-commerce de 'Firmeza', la tienda líder en materiales de construcción.
+Tu misión es aconsejar a los clientes, responder dudas sobre productos, envíos, métodos de pago (MercadoPago, PSE, Tarjetas) y ayudarlos a comprar.
 
-Responde de manera concisa, amigable y profesional. Si no sabes algo específico, sugiere contactar al equipo de ventas.
-Mantén tus respuestas cortas (máximo 3-4 oraciones) y útiles.";
+INFORMACIÓN DEL CATÁLOGO REAL EN TIEMPO REAL:
+{catalogSummary}
+
+CARRITO ACTUAL DEL CLIENTE:
+{cartContext ?? "Vacío"}
+
+REGLAS DE RESPUESTA:
+- Responde de forma muy amigable, entusiasta y profesional.
+- Sé conciso (máximo 3-4 frases bien estructuradas).
+- Usa formato markdown leve (usa **negritas** para precios y nombres de productos).
+- Si el cliente pregunta precios o disponibilidad, usa SIEMPRE los datos exactos del catálogo provisto arriba.
+- Invítalos siempre a agregar al carrito o comprar con MercadoPago.";
 
                 var requestBody = new
                 {
@@ -89,7 +122,7 @@ Mantén tus respuestas cortas (máximo 3-4 oraciones) y útiles.";
                     generationConfig = new
                     {
                         temperature = 0.7,
-                        maxOutputTokens = 200,
+                        maxOutputTokens = 250,
                         topP = 0.8,
                         topK = 40
                     }
@@ -107,8 +140,8 @@ Mantén tus respuestas cortas (máximo 3-4 oraciones) y útiles.";
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
                     var geminiResponse = JsonSerializer.Deserialize<GeminiResponse>(responseContent);
-                    
-                    return geminiResponse?.Candidates?[0]?.Content?.Parts?[0]?.Text 
+
+                    return geminiResponse?.Candidates?[0]?.Content?.Parts?[0]?.Text
                         ?? GetFallbackResponse(message);
                 }
                 else
@@ -128,70 +161,46 @@ Mantén tus respuestas cortas (máximo 3-4 oraciones) y útiles.";
         {
             var lowerMessage = message.ToLower();
 
-            if (lowerMessage.Contains("producto") || lowerMessage.Contains("catálogo") || lowerMessage.Contains("disponible"))
+            if (lowerMessage.Contains("producto") || lowerMessage.Contains("catálogo") || lowerMessage.Contains("cemento"))
             {
-                return "Contamos con una amplia variedad de productos de construcción. Puedes ver nuestro catálogo completo en la sección de Productos. ¿Hay algo específico que estés buscando?";
+                return "Contamos con materiales de la más alta calidad como **Cemento Gray Portland**, **Varilla de Acero**, **Ladrillos**, y más. Revisa nuestro catálogo arriba o consulta precios en tiempo real.";
             }
-            else if (lowerMessage.Contains("pedido") || lowerMessage.Contains("comprar") || lowerMessage.Contains("orden"))
+            else if (lowerMessage.Contains("pago") || lowerMessage.Contains("mercadopago") || lowerMessage.Contains("tarjeta"))
             {
-                return "Para hacer un pedido, simplemente agrega los productos que necesitas al carrito y procede al checkout. Recibirás una confirmación por correo electrónico con todos los detalles.";
+                return "Aceptamos **MercadoPago**, tarjetas de crédito/débito, **PSE** y **Nequi**. Tu pago está protegido al 100%.";
             }
-            else if (lowerMessage.Contains("pago") || lowerMessage.Contains("pagar"))
+            else if (lowerMessage.Contains("envío") || lowerMessage.Contains("entrega"))
             {
-                return "Aceptamos diversos métodos de pago para tu comodidad. Los detalles específicos se mostrarán durante el proceso de compra. ¿Necesitas más información?";
+                return "Realizamos **envíos a domicilio gratis** en compras superiores a $200.000 COP. Los despachos tardan entre 24 y 48 horas.";
             }
-            else if (lowerMessage.Contains("envío") || lowerMessage.Contains("entrega") || lowerMessage.Contains("domicilio"))
+            else if (lowerMessage.Contains("hola") || lowerMessage.Contains("buenos"))
             {
-                return "Realizamos envíos a domicilio. Los tiempos y costos de entrega varían según tu ubicación. Puedes consultar esta información al momento de realizar tu pedido.";
-            }
-            else if (lowerMessage.Contains("precio") || lowerMessage.Contains("costo") || lowerMessage.Contains("cuánto"))
-            {
-                return "Los precios de nuestros productos están disponibles en el catálogo. Puedes ver el precio de cada artículo en la sección de Productos. ¿Te gustaría ver algún producto en particular?";
-            }
-            else if (lowerMessage.Contains("hola") || lowerMessage.Contains("buenos") || lowerMessage.Contains("buenas"))
-            {
-                return "¡Hola! Bienvenido a Firmeza. Estoy aquí para ayudarte con información sobre nuestros productos, pedidos, envíos y más. ¿En qué puedo asistirte?";
-            }
-            else if (lowerMessage.Contains("gracias"))
-            {
-                return "¡De nada! Si necesitas algo más, no dudes en preguntar. Estoy aquí para ayudarte. 😊";
+                return "¡Hola! Bienvenido a **Firmeza**. Estoy aquí para asesorarte en tus compras de materiales. ¿Qué estás construyendo o remodelando hoy?";
             }
             else
             {
-                return "Gracias por tu mensaje. Puedo ayudarte con información sobre productos, pedidos, métodos de pago y envíos. ¿Hay algo específico en lo que pueda asistirte?";
+                return "¡Con gusto te ayudo! Puedes explorar nuestros productos en el catálogo, agregarlos al carrito y pagar en segundos con MercadoPago. ¿Necesitas recomendación de algún material?";
             }
         }
     }
 
-    // DTOs
     public class ChatMessageRequest
     {
         public string Message { get; set; } = string.Empty;
+        public string? CartContext { get; set; }
     }
 
     public class ChatMessageResponse
     {
         public string Response { get; set; } = string.Empty;
+        public List<ChatProductDto>? Products { get; set; }
     }
 
-    // Gemini API Response Models
-    public class GeminiResponse
+    public class ChatProductDto
     {
-        public List<Candidate>? Candidates { get; set; }
-    }
-
-    public class Candidate
-    {
-        public Content? Content { get; set; }
-    }
-
-    public class Content
-    {
-        public List<Part>? Parts { get; set; }
-    }
-
-    public class Part
-    {
-        public string? Text { get; set; }
+        public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public decimal Precio { get; set; }
+        public int Stock { get; set; }
     }
 }
