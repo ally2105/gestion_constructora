@@ -1,227 +1,233 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext'; // Import AuthContext
+import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '../services/api';
+import Footer from '../components/Footer';
 import toast from 'react-hot-toast';
+import '../styles/CartPage.css';
 
 const CartPage = () => {
   const { cartItems, updateQuantity, removeFromCart, calculateTotals, clearCart } = useCart();
-  const { user } = useAuth(); // Get authenticated user
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { subtotal, tax, total } = calculateTotals();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [discount, setDiscount] = useState(0);
 
-  const handleCheckout = async () => {
+  const handleApplyCoupon = (e) => {
+    e.preventDefault();
+    if (!couponCode.trim()) return;
+    if (couponCode.toUpperCase() === 'FIRMEZA10') {
+      setDiscount(0.1); // 10% discount
+      toast.success('¡Cupón del 10% aplicado!');
+    } else {
+      toast.error('Cupón no válido. Prueba con "FIRMEZA10".');
+    }
+  };
+
+  const finalDiscount = total * discount;
+  const finalTotal = total - finalDiscount;
+
+  const handleProceedToCheckout = () => {
     if (cartItems.length === 0) {
       toast.error('El carrito está vacío.');
       return;
     }
-
-    // Check if user is authenticated
     if (!user || !user.id) {
       toast.error('Debes iniciar sesión para realizar una compra.');
       navigate('/login');
       return;
     }
-
-    setIsProcessing(true);
-
-    try {
-      // Get the clienteId from the API using the user's ID
-      const clienteResponse = await api.get(`/api/Clientes/byuser/${user.id}`);
-      const clienteId = clienteResponse.data.id;
-
-      // Process each cart item as a separate sale
-      for (const item of cartItems) {
-        const ventaData = {
-          clienteId: clienteId, // Use the correct client ID
-          fechaVenta: new Date().toISOString(),
-          productoId: item.id,
-          cantidad: item.quantity,
-        };
-        await api.post('/api/Ventas', ventaData);
-      }
-
-      toast.success('¡Compra realizada con éxito!', {
-        icon: '🎉',
-        style: {
-          borderRadius: '10px',
-          background: '#1e293b',
-          color: '#fff',
-        },
-      });
-      clearCart();
-      setTimeout(() => navigate('/products'), 2000);
-
-    } catch (err) {
-      console.error('Error al procesar la compra:', err.response?.data || err.message);
-
-      if (err.response?.status === 404) {
-        toast.error('No se encontró tu perfil de cliente. Por favor, contacta al administrador.');
-      } else {
-        toast.error('Error al procesar la compra.');
-      }
-    } finally {
-      setIsProcessing(false);
-    }
+    navigate('/checkout', { state: { discount, couponCode } });
   };
 
-  const EmptyCart = () => (
-    <div className="text-center" style={{ padding: '60px 20px' }}>
-      <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-text-secondary)', marginBottom: '24px', opacity: 0.5 }}>
-        <circle cx="9" cy="21" r="1"></circle>
-        <circle cx="20" cy="21" r="1"></circle>
-        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-      </svg>
-      <h3 style={{ fontSize: '1.5rem', marginBottom: '16px', color: 'var(--color-text-main)' }}>Tu carrito está vacío</h3>
-      <p style={{ color: 'var(--color-text-secondary)', marginBottom: '32px' }}>Parece que aún no has añadido ningún producto. ¡Explora nuestro catálogo!</p>
-      <button className="btn btn-primary" onClick={() => navigate('/products')}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="7" height="7"></rect>
-          <rect x="14" y="3" width="7" height="7"></rect>
-          <rect x="14" y="14" width="7" height="7"></rect>
-          <rect x="3" y="14" width="7" height="7"></rect>
-        </svg>
-        Ver Productos
-      </button>
-    </div>
-  );
-
   return (
-    <div className="main-container">
-      <h1 className="page-title">Tu Carrito de Compras</h1>
+    <div className="cart-page-wrapper">
+      <div className="cart-container">
+        <div className="cart-header">
+          <h1 className="cart-title">Tu Carrito de Compras</h1>
+          <p className="cart-subtitle">
+            {cartItems.length > 0
+              ? `Tienes ${cartItems.reduce((acc, i) => acc + i.quantity, 0)} artículo(s) seleccionados`
+              : 'Tu carrito está actualmente vacío'}
+          </p>
+        </div>
 
-      {cartItems.length === 0 ? (
-        <EmptyCart />
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '40px', alignItems: 'start' }} className="cart-layout-responsive">
-          <div className="table-container">
-            <table className="table-premium">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>Precio</th>
-                  <th>Cantidad</th>
-                  <th>Total</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {cartItems.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <div style={{ fontWeight: '600' }}>{item.nombre}</div>
-                    </td>
-                    <td style={{ color: 'var(--color-text-secondary)' }}>${item.precio.toFixed(2)}</td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {cartItems.length === 0 ? (
+          <div className="empty-cart-card">
+            <div className="empty-cart-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+            </div>
+            <h3>¡Empieza a construir!</h3>
+            <p>Aún no has agregado ningún producto a tu carrito. Revisa nuestro catálogo.</p>
+            <button className="btn btn-primary" onClick={() => navigate('/products')}>
+              Explorar Productos
+            </button>
+          </div>
+        ) : (
+          <div className="cart-grid-layout">
+            {/* Products List */}
+            <div className="cart-items-section">
+              <div className="cart-items-header">
+                <span>Producto</span>
+                <span>Precio Unitario</span>
+                <span>Cantidad</span>
+                <span>Subtotal</span>
+              </div>
+
+              <div className="cart-items-list">
+                {cartItems.map((item) => {
+                  const itemSubtotal = item.precio * item.quantity;
+                  return (
+                    <div key={item.id} className="cart-item-card" id={`cart-item-${item.id}`}>
+                      {/* Product Info */}
+                      <div className="cart-item-info">
+                        <div className="cart-item-thumbnail">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="cart-item-title">{item.nombre}</h4>
+                          <span className="cart-item-stock-info">
+                            {item.stock > 0 ? `Stock disponible: ${item.stock}` : 'Agotado'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Price */}
+                      <div className="cart-item-unit-price">
+                        ${item.precio.toLocaleString('es-CO')}
+                      </div>
+
+                      {/* Quantity Controls */}
+                      <div className="cart-quantity-selector">
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="btn btn-secondary"
-                          style={{ padding: '4px 8px', minWidth: '32px' }}
-                        >-</button>
-                        <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{item.quantity}</span>
+                          className="qty-btn"
+                          aria-label="Disminuir"
+                        >
+                          -
+                        </button>
+                        <span className="qty-value">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="btn btn-secondary"
-                          style={{ padding: '4px 8px', minWidth: '32px' }}
-                        >+</button>
+                          className="qty-btn"
+                          disabled={item.quantity >= item.stock}
+                          aria-label="Aumentar"
+                        >
+                          +
+                        </button>
                       </div>
-                    </td>
-                    <td style={{ color: 'var(--color-primary)', fontWeight: '700' }}>
-                      ${(item.precio * item.quantity).toFixed(2)}
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="btn btn-danger"
-                        style={{ padding: '8px', borderRadius: '8px' }}
-                        title="Eliminar producto"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6"></polyline>
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
 
-          <div className="cart-summary">
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '24px', color: 'var(--color-text-main)' }}>Resumen de Compra</h3>
+                      {/* Item Total & Remove */}
+                      <div className="cart-item-total-area">
+                        <span className="cart-item-total-price">
+                          ${itemSubtotal.toLocaleString('es-CO')}
+                        </span>
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="cart-remove-btn"
+                          title="Eliminar producto"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ color: 'var(--color-text-secondary)' }}>Subtotal:</span>
-              <span style={{ fontWeight: '600' }}>${subtotal.toFixed(2)}</span>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
-              <span style={{ color: 'var(--color-text-secondary)' }}>IVA (19%):</span>
-              <span style={{ fontWeight: '600' }}>${tax.toFixed(2)}</span>
-            </div>
-
-            <div style={{ borderTop: '1px solid var(--color-border)', margin: '20px 0', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '1.1rem', color: 'var(--color-text-main)' }}>Total:</span>
-              <span style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--color-primary)' }}>${total.toFixed(2)}</span>
-            </div>
-
-            <button
-              onClick={handleCheckout}
-              className="btn btn-primary"
-              style={{ width: '100%', marginTop: '16px', padding: '16px' }}
-              disabled={isProcessing}
-            >
-              {isProcessing ? (
-                <>
-                  <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
-                    <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+              {/* Action Buttons */}
+              <div className="cart-actions-bar">
+                <button className="btn btn-secondary" onClick={() => navigate('/products')}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
                   </svg>
-                  Procesando...
-                </>
-              ) : (
-                <>
-                  Proceder al Pago
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                  </svg>
-                </>
-              )}
-            </button>
+                  Seguir Comprando
+                </button>
 
-            <div style={{ marginTop: '24px', textAlign: 'center' }}>
-              <Link to="/products" style={{ color: 'var(--color-text-secondary)', textDecoration: 'none', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="15 18 9 12 15 6"></polyline>
+                <button className="btn-clear-cart" onClick={clearCart}>
+                  Vaciar Carrito
+                </button>
+              </div>
+            </div>
+
+            {/* Order Summary Sidebar */}
+            <div className="cart-summary-card">
+              <h3 className="summary-card-title">Resumen del Pedido</h3>
+
+              {/* Coupon Form */}
+              <form onSubmit={handleApplyCoupon} className="coupon-form">
+                <input
+                  type="text"
+                  placeholder="Código de cupón (ej: FIRMEZA10)"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="form-control coupon-input"
+                />
+                <button type="submit" className="btn btn-secondary coupon-btn">
+                  Aplicar
+                </button>
+              </form>
+
+              <div className="summary-breakdown">
+                <div className="summary-row">
+                  <span>Subtotal:</span>
+                  <span>${subtotal.toLocaleString('es-CO')}</span>
+                </div>
+                <div className="summary-row">
+                  <span>IVA (19%):</span>
+                  <span>${tax.toLocaleString('es-CO')}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="summary-row discount-row">
+                    <span>Descuento (10%):</span>
+                    <span>-${finalDiscount.toLocaleString('es-CO')}</span>
+                  </div>
+                )}
+                <div className="summary-row shipping-row">
+                  <span>Envío:</span>
+                  <span className="free-badge">Gratis</span>
+                </div>
+                <div className="summary-divider"></div>
+                <div className="summary-row total-row">
+                  <span>Total estimado:</span>
+                  <span className="total-price">${finalTotal.toLocaleString('es-CO')}</span>
+                </div>
+              </div>
+
+              <button
+                className="btn btn-primary checkout-proceed-btn"
+                onClick={handleProceedToCheckout}
+              >
+                Proceder al Pago
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
-                Continuar Comprando
-              </Link>
+              </button>
+
+              <div className="security-guarantee">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>Procesado de forma segura con MercadoPago</span>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      <style>{`
-        @media (max-width: 900px) {
-          .cart-layout-responsive {
-            grid-template-columns: 1fr !important;
-          }
-          .table-container {
-            overflow-x: auto;
-          }
-        }
-        .animate-spin {
-          animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+      <Footer />
     </div>
   );
 };
