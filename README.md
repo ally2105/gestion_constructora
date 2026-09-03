@@ -170,7 +170,7 @@ Una vez que todos los contenedores estén corriendo, abre tu navegador:
 
 | Servicio | URL | Descripción |
 |----------|-----|-------------|
-| 🛒 **Frontend Cliente** | [http://localhost:3000](http://localhost:3000) | Tienda para clientes finales (React SPA) |
+| 🛒 **Frontend Cliente** | [http://localhost:3080](http://localhost:3080) | Tienda para clientes finales (React SPA) |
 | 🔧 **Panel Admin** | [http://localhost:5031](http://localhost:5031) | Panel de administración (ASP.NET MVC) |
 | 📡 **API Docs** | [http://localhost:5165/swagger](http://localhost:5165/swagger) | Documentación Swagger de la API |
 | ❤️ **Health Check** | [http://localhost:5165/health](http://localhost:5165/health) | Estado de la API |
@@ -354,7 +354,7 @@ Si prefieres ejecutar los servicios localmente sin Docker, sigue estos pasos.
    cd gestion_construccion.web
    dotnet run
    ```
-   El panel estará disponible en `http://localhost:5037`
+   El panel estará disponible en `http://localhost:5031`
 
 4. **Iniciar el Frontend de Clientes:**
    ```bash
@@ -362,7 +362,7 @@ Si prefieres ejecutar los servicios localmente sin Docker, sigue estos pasos.
    npm install
    npm run dev
    ```
-   El frontend estará disponible en `http://localhost:3000`
+   El frontend estará disponible en `http://localhost:3080`
 
 ## 🔑 Credenciales por Defecto
 
