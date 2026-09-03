@@ -106,6 +106,24 @@ builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        await context.Database.MigrateAsync();
+        
+        var configuration = services.GetRequiredService<IConfiguration>();
+        await SeedData.Initialize(services, configuration);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the DB.");
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

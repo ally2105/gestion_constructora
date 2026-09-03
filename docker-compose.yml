@@ -85,7 +85,7 @@ services:
       context: ./Firmeza.Client
       dockerfile: Dockerfile
     ports:
-      - "3000:80" # Mapea el puerto 3000 del host al 80 del contenedor Nginx
+      - "3080:80" # Puerto propio de Firmeza (evita choque con otros proyectos en 3000)
     depends_on:
       - api
     networks:

@@ -42,7 +42,7 @@ namespace Firmeza.Api.Controllers
         [Authorize(Roles = "Administrador")]
         public async Task<ActionResult<IEnumerable<VentaDto>>> GetAllVentas()
         {
-            var ventas = await _unitOfWork.Ventas.GetAllAsync();
+            var ventas = await _ventaService.GetAllVentasAsync();
             var ventasDto = _mapper.Map<IEnumerable<VentaDto>>(ventas);
             return Ok(ventasDto);
         }
@@ -51,7 +51,7 @@ namespace Firmeza.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<VentaDto>> GetVentaById(int id)
         {
-            var venta = await _unitOfWork.Ventas.GetByIdAsync(id);
+            var venta = await _ventaService.GetVentaByIdAsync(id);
             if (venta == null)
             {
                 return NotFound();

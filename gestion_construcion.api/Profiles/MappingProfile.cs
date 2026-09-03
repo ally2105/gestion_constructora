@@ -19,7 +19,8 @@ namespace Firmeza.Api.Profiles
 
             // Mapping for creating Clients
             CreateMap<ClienteCreateDto, Usuario>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Telefono));
             CreateMap<ClienteCreateDto, Cliente>();
 
             // Mapping for updating Clients

@@ -24,11 +24,20 @@ namespace Firmeza.Infrastructure.Services
         {
             var emailSettings = _configuration.GetSection("SmtpSettings");
             var smtpServer = emailSettings["Server"];
-            var smtpPort = int.Parse(emailSettings["Port"]!);
-            var smtpUsername = emailSettings["Username"];
-            var smtpPassword = emailSettings["Password"];
-            var senderName = emailSettings["SenderName"];
-            var senderEmail = emailSettings["SenderEmail"];
+            var smtpPort = int.Parse(emailSettings["Port"] ?? "587");
+            var smtpUsername = emailSettings["Username"]?.Trim();
+            var smtpPassword = emailSettings["Password"]?.Replace(" ", "").Trim();
+            var senderName = emailSettings["SenderName"]?.Trim('"') ?? "Firmeza";
+            var senderEmail = emailSettings["SenderEmail"]?.Trim();
+
+            if (string.IsNullOrWhiteSpace(smtpServer) ||
+                string.IsNullOrWhiteSpace(smtpUsername) ||
+                string.IsNullOrWhiteSpace(smtpPassword) ||
+                string.IsNullOrWhiteSpace(senderEmail))
+            {
+                _logger.LogWarning("SMTP no está configurado. Se omite el envío a {ToEmail}.", toEmail);
+                return;
+            }
 
             _logger.LogInformation("Intentando enviar correo a {ToEmail} desde {SenderEmail} usando {SmtpServer}:{SmtpPort}", toEmail, senderEmail, smtpServer, smtpPort);
 
@@ -53,6 +62,8 @@ namespace Firmeza.Infrastructure.Services
                 {
                     _logger.LogInformation("Conectando a SMTP: {SmtpServer}:{SmtpPort} con StartTls", smtpServer, smtpPort);
                     await smtp.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.StartTls);
+                    // Gmail anuncia XOAUTH2; con contraseña de aplicación hay que forzar LOGIN/PLAIN.
+                    smtp.AuthenticationMechanisms.Remove("XOAUTH2");
                     _logger.LogInformation("Conectado. Autenticando con usuario: {SmtpUsername}", smtpUsername);
                     await smtp.AuthenticateAsync(smtpUsername, smtpPassword);
                     _logger.LogInformation("Autenticación exitosa. Enviando correo.");

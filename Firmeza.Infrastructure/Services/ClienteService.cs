@@ -69,10 +69,16 @@ namespace Firmeza.Infrastructure.Services
             await _unitOfWork.CompleteAsync();
             _logger.LogInformation("Cliente guardado con éxito en la base de datos.");
             
-            // Enviar Correo de Bienvenida
-            var subject = "¡Bienvenido a Firmeza Construcción!";
-            var message = $"<h1>Hola {user.Nombre},</h1><p>Tu cuenta ha sido creada exitosamente. ¡Gracias por unirte a nosotros!</p>";
-            await _emailService.SendEmailAsync(user.Email!, subject, message);
+            try
+            {
+                var subject = "¡Bienvenido a Firmeza Construcción!";
+                var message = $"<h1>Hola {user.Nombre},</h1><p>Tu cuenta ha sido creada exitosamente. ¡Gracias por unirte a nosotros!</p>";
+                await _emailService.SendEmailAsync(user.Email!, subject, message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "La cuenta se creó, pero no se pudo enviar el correo de bienvenida a {Email}.", user.Email);
+            }
 
             cliente.Usuario = user;
             return cliente;

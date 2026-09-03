@@ -24,6 +24,7 @@ namespace Firmeza.Api.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<PagedResponseDto<ProductoDto>>> GetAllProductos([FromQuery] PagingParameters pagingParameters)
         {
             var (productos, totalRecords) = await _productoService.GetAllProductosAsync(pagingParameters.PageNumber, pagingParameters.PageSize);
@@ -42,6 +43,7 @@ namespace Firmeza.Api.Controllers
 
         // ... (resto de los métodos)
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<ProductoDto>> GetProductoById(int id)
         {
             var producto = await _productoService.GetProductoByIdAsync(id);
